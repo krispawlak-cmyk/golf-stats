@@ -481,6 +481,17 @@ canvas{display:block;width:100%!important}
         <div id="v-dashboard" class="view active">
           <div class="cards-header"><span class="cards-label">My Stats</span><button class="add-card-btn-hdr" onclick="openDrawer()">＋</button></div>
           <div class="stats-grid" id="stats-grid"></div>
+          <!-- Log Round CTA -->
+          <div onclick="openModal('modal-log-round');setTimeout(initLogRound,100)"
+            style="background:linear-gradient(135deg,var(--hdr-a),var(--hdr-b));border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 4px 12px rgba(26,122,58,.25)">
+            <div style="width:40px;height:40px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">⛳</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:800;color:#fff">Log a Round</div>
+              <div style="font-size:10px;color:rgba(255,255,255,.75);margin-top:2px">Tap after playing · GPS detects your course</div>
+            </div>
+            <div style="color:rgba(255,255,255,.7);font-size:18px">›</div>
+          </div>
+
           <div class="sh">Recent Rounds</div>
           <div id="dashboard-rounds"></div>
         </div>
@@ -555,14 +566,14 @@ canvas{display:block;width:100%!important}
         <!-- BAG SETUP -->
         <div id="v-bag" class="view">
           <div class="bag-summary">
-            <div><div class="bag-count" id="bag-count">12</div><div class="bag-count-label">clubs in bag</div></div>
+            <div><div class="bag-count" id="bag-count">14</div><div class="bag-count-label">clubs in bag</div></div>
             <div style="flex:1;margin-left:8px">
-              <div style="font-size:11px;font-weight:700;color:#fff">Titleist / Callaway mix</div>
+              <div style="font-size:11px;font-weight:700;color:#fff">TaylorMade / Cobra / Kirkland</div>
               <div style="font-size:9px;color:rgba(255,255,255,.7);margin-top:3px">Last updated: Apr 2025</div>
               <div style="font-size:9px;color:rgba(255,255,255,.7);margin-top:1px">2 of 14 slots available</div>
             </div>
           </div>
-          <div class="bag-alert">⚠️ <span><strong>3 clubs need regripping</strong> — Driver, 3-wood, 5-iron (47+ rounds since last grip)</span></div>
+          <div class="bag-alert" style="background:rgba(61,155,233,.1);border-color:rgba(61,155,233,.3)">💡 <span>Grip dates unknown — update them in the bag after your next regrip to track wear</span></div>
           <div class="sh" style="margin-top:2px">My Clubs <button class="sh-action" onclick="showAddClub()">＋ Add</button></div>
           <div id="bag-clubs-list"></div>
           <button class="add-club-btn" onclick="showAddClub()">＋ Add Club to Bag</button>
@@ -808,6 +819,102 @@ canvas{display:block;width:100%!important}
           </div>
         </div>
 
+
+        <!-- ── LOG ROUND MODAL ── -->
+        <div class="modal-overlay" id="modal-log-round" onclick="maybeClose('modal-log-round',event)">
+          <div class="modal-sheet">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+              <div><h2>⛳ Log Round</h2><p id="log-header-sub">Detecting your location...</p></div>
+              <button class="modal-close" onclick="closeModal('modal-log-round')">✕</button>
+            </div>
+            <div class="modal-body">
+
+              <!-- Course detection strip -->
+              <div id="log-course-strip" style="background:var(--green-light);border:1px solid rgba(26,122,58,.2);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+                <div id="log-course-icon" style="font-size:24px">📍</div>
+                <div style="flex:1">
+                  <div id="log-course-detected" style="font-size:13px;font-weight:700;color:var(--text)">Detecting nearby course...</div>
+                  <div id="log-course-dist" style="font-size:10px;color:var(--text-dim);margin-top:2px"></div>
+                </div>
+                <button onclick="overrideCourse()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:10px;color:var(--text-dim);font-family:var(--font);cursor:pointer">Change</button>
+              </div>
+
+              <!-- Course override (hidden by default) -->
+              <div id="log-course-override" style="display:none;margin-bottom:10px">
+                <input type="text" id="log-course-manual" placeholder="Type course name..." style="width:100%;background:var(--bg-card2);border:1px solid var(--green);border-radius:10px;padding:10px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none">
+                <div id="log-course-suggestions" style="margin-top:6px"></div>
+              </div>
+
+              <!-- The 3 numbers -->
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+                <div style="text-align:center">
+                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);margin-bottom:8px">Score</div>
+                  <div style="display:flex;align-items:center;justify-content:center;gap:6px">
+                    <button onclick="adjustVal('log-score-val',-1)" style="width:28px;height:28px;border-radius:50%;background:var(--bg-card2);border:1px solid var(--border);color:var(--text);font-size:16px;cursor:pointer;font-family:var(--font)">−</button>
+                    <div id="log-score-val" style="font-size:28px;font-weight:900;color:var(--green);min-width:44px;text-align:center">96</div>
+                    <button onclick="adjustVal('log-score-val',1)" style="width:28px;height:28px;border-radius:50%;background:var(--bg-card2);border:1px solid var(--border);color:var(--text);font-size:16px;cursor:pointer;font-family:var(--font)">＋</button>
+                  </div>
+                </div>
+                <div style="text-align:center">
+                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);margin-bottom:8px">GIR</div>
+                  <div style="display:flex;align-items:center;justify-content:center;gap:6px">
+                    <button onclick="adjustVal('log-gir-val',-1)" style="width:28px;height:28px;border-radius:50%;background:var(--bg-card2);border:1px solid var(--border);color:var(--text);font-size:16px;cursor:pointer;font-family:var(--font)">−</button>
+                    <div id="log-gir-val" style="font-size:28px;font-weight:900;color:var(--green);min-width:44px;text-align:center">0</div>
+                    <button onclick="adjustVal('log-gir-val',1)" style="width:28px;height:28px;border-radius:50%;background:var(--bg-card2);border:1px solid var(--border);color:var(--text);font-size:16px;cursor:pointer;font-family:var(--font)">＋</button>
+                  </div>
+                </div>
+                <div style="text-align:center">
+                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);margin-bottom:8px">Putts</div>
+                  <div style="display:flex;align-items:center;justify-content:center;gap:6px">
+                    <button onclick="adjustVal('log-putts-val',-1)" style="width:28px;height:28px;border-radius:50%;background:var(--bg-card2);border:1px solid var(--border);color:var(--text);font-size:16px;cursor:pointer;font-family:var(--font)">−</button>
+                    <div id="log-putts-val" style="font-size:28px;font-weight:900;color:var(--green);min-width:44px;text-align:center">36</div>
+                    <button onclick="adjustVal('log-putts-val',1)" style="width:28px;height:28px;border-radius:50%;background:var(--bg-card2);border:1px solid var(--border);color:var(--text);font-size:16px;cursor:pointer;font-family:var(--font)">＋</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Optional extras (collapsed) -->
+              <div id="log-extras-toggle" onclick="toggleExtras()" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:10px">
+                <div style="font-size:11px;font-weight:600;color:var(--text-dim)">➕ Optional: Fairways, Calories, Heart Rate</div>
+                <div id="extras-chevron" style="color:var(--text-dim);font-size:13px">›</div>
+              </div>
+              <div id="log-extras" style="display:none;margin-bottom:10px">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+                  <div>
+                    <div style="font-size:9px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Fairways Hit</div>
+                    <input type="number" id="log-fw" placeholder="7" min="0" max="14" style="width:100%;background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none">
+                  </div>
+                  <div>
+                    <div style="font-size:9px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">of</div>
+                    <input type="number" id="log-fw-opp" placeholder="14" value="14" min="0" max="14" style="width:100%;background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none">
+                  </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                  <div>
+                    <div style="font-size:9px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Calories</div>
+                    <input type="number" id="log-cal" placeholder="800" style="width:100%;background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none">
+                  </div>
+                  <div>
+                    <div style="font-size:9px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Avg HR (bpm)</div>
+                    <input type="number" id="log-hr" placeholder="88" style="width:100%;background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Holes toggle -->
+              <div style="display:flex;gap:8px;margin-bottom:14px">
+                <button onclick="setLogHoles(18,this)" id="holes-btn-18" style="flex:1;padding:9px;background:var(--green);border:none;border-radius:10px;color:#fff;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer">18 Holes</button>
+                <button onclick="setLogHoles(9,this)" id="holes-btn-9" style="flex:1;padding:9px;background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer">9 Holes</button>
+              </div>
+
+              <!-- Save button -->
+              <button onclick="saveRound()" style="width:100%;padding:14px;background:var(--green);border:none;border-radius:var(--radius);color:#fff;font-size:15px;font-weight:800;font-family:var(--font);cursor:pointer;box-shadow:0 4px 16px rgba(26,122,58,.35)">✅ Save Round</button>
+
+            </div>
+          </div>
+        </div>
+
         <!-- CARD DRAWER -->
         <div class="card-drawer" id="card-drawer">
           <div class="drawer-handle"></div>
@@ -938,9 +1045,20 @@ const hdcpHistory=[
   {date:"2025-09-26",hdcp:13.5},
 ];
 const clubs=[
-  {club:"Driver",shots:68,avg:221},{club:"3-wood",shots:22,avg:198},{club:"5-iron",shots:41,avg:185},
-  {club:"6-iron",shots:53,avg:174},{club:"7-iron",shots:62,avg:161},{club:"8-iron",shots:58,avg:147},
-  {club:"9-iron",shots:49,avg:133},{club:"PW",shots:71,avg:112},{club:"GW",shots:38,avg:96},{club:"SW",shots:44,avg:74},
+  {club:"Driver",  shots:0,avg:211,brand:"TaylorMade",model:"SIM2 Max D Driver"},
+  {club:"3-wood",  shots:0,avg:157,brand:"TaylorMade",model:"SIM2 Max D Wood"},
+  {club:"5-wood",  shots:0,avg:175,brand:"TaylorMade",model:"SIM2 Max D Wood"},
+  {club:"4-hybrid",shots:0,avg:141,brand:"TaylorMade",model:"SIM2 Max Rescue Hybrid"},
+  {club:"4-iron",  shots:0,avg:110,brand:"TaylorMade",model:"r7 Iron"},
+  {club:"6-iron",  shots:0,avg:155,brand:"Cobra",     model:"F9 SPEEDBACK Iron"},
+  {club:"7-iron",  shots:0,avg:143,brand:"Cobra",     model:"F9 SPEEDBACK Iron"},
+  {club:"8-iron",  shots:0,avg:129,brand:"Cobra",     model:"F9 SPEEDBACK Iron"},
+  {club:"9-iron",  shots:0,avg:124,brand:"Cobra",     model:"F9 SPEEDBACK Iron"},
+  {club:"PW",      shots:0,avg:116,brand:"Cobra",     model:"F9 SPEEDBACK Wedge"},
+  {club:"GW",      shots:0,avg:101,brand:"Cobra",     model:"F9 SPEEDBACK Wedge"},
+  {club:"SW",      shots:0,avg:62, brand:"Kirkland",  model:"Signature Wedge"},
+  {club:"LW",      shots:0,avg:28, brand:"Kirkland",  model:"Signature Wedge"},
+  {club:"Putter",  shots:0,avg:0,  brand:"Kirkland",  model:"KS1 Putter"},
 ];
 const friends=[
   {name:"Matt H.", initials:"MH",color:"#2471a3",hdcp:8.1, lastRound:"Apr 18",lastScore:76,location:"Kitchener"},
@@ -965,18 +1083,20 @@ const courseLocs={'Whistle Bear GC':'Cambridge, ON','Cambridge G&CC':'Cambridge,
 
 // ── BAG DATA ──────────────────────────────────────────────────
 const bagClubs=[
-  {name:"Driver",brand:"Callaway",model:"Paradym",shaft:"Aldila 60X",loft:"9°",flex:"Stiff",rounds:52,lastGrip:"Jan 2024",icon:"🏌️"},
-  {name:"3-wood",brand:"Callaway",model:"Paradym",shaft:"Aldila 60R",loft:"15°",flex:"Regular",rounds:48,lastGrip:"Jan 2024",icon:"🌳"},
-  {name:"5-iron",brand:"Titleist",model:"T200",shaft:"KBS Tour 90",loft:"25°",flex:"Stiff",rounds:51,lastGrip:"Jan 2024",icon:"🔧"},
-  {name:"6-iron",brand:"Titleist",model:"T200",shaft:"KBS Tour 90",loft:"28°",flex:"Stiff",rounds:51,lastGrip:"Mar 2024",icon:"🔧"},
-  {name:"7-iron",brand:"Titleist",model:"T200",shaft:"KBS Tour 90",loft:"31°",flex:"Stiff",rounds:51,lastGrip:"Mar 2024",icon:"🔧"},
-  {name:"8-iron",brand:"Titleist",model:"T200",shaft:"KBS Tour 90",loft:"35°",flex:"Stiff",rounds:51,lastGrip:"Mar 2024",icon:"🔧"},
-  {name:"9-iron",brand:"Titleist",model:"T200",shaft:"KBS Tour 90",loft:"39°",flex:"Stiff",rounds:51,lastGrip:"Mar 2024",icon:"🔧"},
-  {name:"PW",brand:"Titleist",model:"Vokey SM9",shaft:"Dynamic Gold",loft:"46°",flex:"Stiff",rounds:51,lastGrip:"Mar 2024",icon:"⚙️"},
-  {name:"GW",brand:"Titleist",model:"Vokey SM9",shaft:"Dynamic Gold",loft:"52°",flex:"Stiff",rounds:51,lastGrip:"Mar 2024",icon:"⚙️"},
-  {name:"SW",brand:"Titleist",model:"Vokey SM9",shaft:"Dynamic Gold",loft:"56°",flex:"Stiff",rounds:51,lastGrip:"Mar 2024",icon:"⚙️"},
-  {name:"LW",brand:"Titleist",model:"Vokey SM9",shaft:"Dynamic Gold",loft:"60°",flex:"Stiff",rounds:51,lastGrip:"Mar 2024",icon:"⚙️"},
-  {name:"Putter",brand:"Scotty Cameron",model:"Phantom X 11",shaft:"Steel",loft:"3.5°",flex:"N/A",rounds:51,lastGrip:"Jun 2024",icon:"🏒"},
+  {name:"Driver",  brand:"TaylorMade",model:"SIM2 Max D Driver",      shaft:"Stock",loft:"9°",  flex:"Regular",rounds:62,lastGrip:"Unknown",icon:"🏌️",avg:211},
+  {name:"3-wood",  brand:"TaylorMade",model:"SIM2 Max D Wood",        shaft:"Stock",loft:"15°", flex:"Regular",rounds:62,lastGrip:"Unknown",icon:"🌳",avg:157},
+  {name:"5-wood",  brand:"TaylorMade",model:"SIM2 Max D Wood",        shaft:"Stock",loft:"18°", flex:"Regular",rounds:62,lastGrip:"Unknown",icon:"🌳",avg:175},
+  {name:"4-hybrid",brand:"TaylorMade",model:"SIM2 Max Rescue Hybrid", shaft:"Stock",loft:"22°", flex:"Regular",rounds:62,lastGrip:"Unknown",icon:"🔨",avg:141},
+  {name:"4-iron",  brand:"TaylorMade",model:"r7 Iron",                shaft:"Stock",loft:"24°", flex:"Regular",rounds:62,lastGrip:"Unknown",icon:"🔧",avg:110},
+  {name:"6-iron",  brand:"Cobra",     model:"F9 SPEEDBACK Iron",      shaft:"Stock",loft:"28°", flex:"Regular",rounds:62,lastGrip:"Unknown",icon:"🔧",avg:155},
+  {name:"7-iron",  brand:"Cobra",     model:"F9 SPEEDBACK Iron",      shaft:"Stock",loft:"32°", flex:"Regular",rounds:62,lastGrip:"Unknown",icon:"🔧",avg:143},
+  {name:"8-iron",  brand:"Cobra",     model:"F9 SPEEDBACK Iron",      shaft:"Stock",loft:"36°", flex:"Regular",rounds:62,lastGrip:"Unknown",icon:"🔧",avg:129},
+  {name:"9-iron",  brand:"Cobra",     model:"F9 SPEEDBACK Iron",      shaft:"Stock",loft:"40°", flex:"Regular",rounds:62,lastGrip:"Unknown",icon:"🔧",avg:124},
+  {name:"PW",      brand:"Cobra",     model:"F9 SPEEDBACK Wedge",     shaft:"Stock",loft:"44°", flex:"Regular",rounds:62,lastGrip:"Unknown",icon:"⚙️",avg:116},
+  {name:"GW",      brand:"Cobra",     model:"F9 SPEEDBACK Wedge",     shaft:"Stock",loft:"50°", flex:"Regular",rounds:62,lastGrip:"Unknown",icon:"⚙️",avg:101},
+  {name:"SW",      brand:"Kirkland",  model:"Signature Wedge",        shaft:"Stock",loft:"56°", flex:"Regular",rounds:62,lastGrip:"Unknown",icon:"⚙️",avg:62},
+  {name:"LW",      brand:"Kirkland",  model:"Signature Wedge",        shaft:"Stock",loft:"60°", flex:"Regular",rounds:62,lastGrip:"Unknown",icon:"⚙️",avg:28},
+  {name:"Putter",  brand:"Kirkland",  model:"KS1 Putter",             shaft:"Steel",loft:"3°",  flex:"N/A",    rounds:62,lastGrip:"Unknown",icon:"🏒",avg:0},
 ];
 
 // ── BADGES DATA ───────────────────────────────────────────────
@@ -1154,14 +1274,19 @@ function renderSiCaddieRow(){
 }
 
 // ── BAG SETUP ─────────────────────────────────────────────────
+
+// ── CLUB SVG IMAGES ──────────────────────────────────────────────
+const CLUB_IMGS = {"Driver": "data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2040%2040%27%3E%20%3Crect%20width=%2740%27%20height=%2740%27%20rx=%278%27%20fill=%27%231a3a5c%27/%3E%20%3C%21--%20Driver%20head%20-%20large%20rounded%20shape%20--%3E%20%3Cellipse%20cx=%2722%27%20cy=%2726%27%20rx=%2712%27%20ry=%278%27%20fill=%27%232471a3%27%20stroke=%27%235ba3d9%27%20stroke-width=%271%27/%3E%20%3Crect%20x=%2710%27%20y=%2724%27%20width=%2724%27%20height=%274%27%20rx=%272%27%20fill=%27%231a5c8a%27/%3E%20%3C%21--%20Shaft%20--%3E%20%3Cline%20x1=%2718%27%20y1=%2726%27%20x2=%278%27%20y2=%276%27%20stroke=%27%237fb3d3%27%20stroke-width=%272%27%20stroke-linecap=%27round%27/%3E%20%3C%21--%20Hosel%20--%3E%20%3Ccircle%20cx=%2718%27%20cy=%2724%27%20r=%272%27%20fill=%27%235ba3d9%27/%3E%20%3Ctext%20x=%2720%27%20y=%2738%27%20font-size=%276%27%20fill=%27%235ba3d9%27%20text-anchor=%27middle%27%20font-family=%27sans-serif%27%3ETM%3C/text%3E%20%3C/svg%3E", "3-wood": "data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2040%2040%27%3E%20%3Crect%20width=%2740%27%20height=%2740%27%20rx=%278%27%20fill=%27%231a3a5c%27/%3E%20%3C%21--%20Wood%20head%20-%20smaller%20than%20driver%20--%3E%20%3Cellipse%20cx=%2722%27%20cy=%2727%27%20rx=%2710%27%20ry=%277%27%20fill=%27%232471a3%27%20stroke=%27%235ba3d9%27%20stroke-width=%271%27/%3E%20%3Crect%20x=%2712%27%20y=%2725%27%20width=%2720%27%20height=%274%27%20rx=%272%27%20fill=%27%231a5c8a%27/%3E%20%3Cline%20x1=%2718%27%20y1=%2726%27%20x2=%278%27%20y2=%276%27%20stroke=%27%237fb3d3%27%20stroke-width=%272%27%20stroke-linecap=%27round%27/%3E%20%3Ccircle%20cx=%2718%27%20cy=%2724%27%20r=%271.5%27%20fill=%27%235ba3d9%27/%3E%20%3Ctext%20x=%2720%27%20y=%2738%27%20font-size=%276%27%20fill=%27%235ba3d9%27%20text-anchor=%27middle%27%20font-family=%27sans-serif%27%3ETM%3C/text%3E%20%3C/svg%3E", "5-wood": "data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2040%2040%27%3E%20%3Crect%20width=%2740%27%20height=%2740%27%20rx=%278%27%20fill=%27%231a3a5c%27/%3E%20%3C%21--%20Wood%20head%20-%20smaller%20than%20driver%20--%3E%20%3Cellipse%20cx=%2722%27%20cy=%2727%27%20rx=%2710%27%20ry=%277%27%20fill=%27%232471a3%27%20stroke=%27%235ba3d9%27%20stroke-width=%271%27/%3E%20%3Crect%20x=%2712%27%20y=%2725%27%20width=%2720%27%20height=%274%27%20rx=%272%27%20fill=%27%231a5c8a%27/%3E%20%3Cline%20x1=%2718%27%20y1=%2726%27%20x2=%278%27%20y2=%276%27%20stroke=%27%237fb3d3%27%20stroke-width=%272%27%20stroke-linecap=%27round%27/%3E%20%3Ccircle%20cx=%2718%27%20cy=%2724%27%20r=%271.5%27%20fill=%27%235ba3d9%27/%3E%20%3Ctext%20x=%2720%27%20y=%2738%27%20font-size=%276%27%20fill=%27%235ba3d9%27%20text-anchor=%27middle%27%20font-family=%27sans-serif%27%3ETM%3C/text%3E%20%3C/svg%3E", "4-hybrid": "data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2040%2040%27%3E%20%3Crect%20width=%2740%27%20height=%2740%27%20rx=%278%27%20fill=%27%231a3a5c%27/%3E%20%3C%21--%20Hybrid%20head%20--%3E%20%3Crect%20x=%2712%27%20y=%2722%27%20width=%2718%27%20height=%2710%27%20rx=%274%27%20fill=%27%232471a3%27%20stroke=%27%235ba3d9%27%20stroke-width=%271%27/%3E%20%3Crect%20x=%2714%27%20y=%2724%27%20width=%2714%27%20height=%276%27%20rx=%272%27%20fill=%27%231a5c8a%27/%3E%20%3Cline%20x1=%2716%27%20y1=%2724%27%20x2=%278%27%20y2=%276%27%20stroke=%27%237fb3d3%27%20stroke-width=%272%27%20stroke-linecap=%27round%27/%3E%20%3Ccircle%20cx=%2716%27%20cy=%2723%27%20r=%271.5%27%20fill=%27%235ba3d9%27/%3E%20%3Ctext%20x=%2720%27%20y=%2738%27%20font-size=%275%27%20fill=%27%235ba3d9%27%20text-anchor=%27middle%27%20font-family=%27sans-serif%27%3EHY%3C/text%3E%20%3C/svg%3E", "4-iron": "data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2040%2040%27%3E%20%3Crect%20width=%2740%27%20height=%2740%27%20rx=%278%27%20fill=%27%231a3a5c%27/%3E%20%3C%21--%20Iron%20head%20-%20thin%20blade%20--%3E%20%3Crect%20x=%2712%27%20y=%2726%27%20width=%2716%27%20height=%277%27%20rx=%271%27%20fill=%27%232471a3%27%20stroke=%27%235ba3d9%27%20stroke-width=%271%27/%3E%20%3Crect%20x=%2712%27%20y=%2728%27%20width=%2716%27%20height=%272%27%20fill=%27%235ba3d9%27%20opacity=%270.4%27/%3E%20%3Cline%20x1=%2716%27%20y1=%2726%27%20x2=%2710%27%20y2=%276%27%20stroke=%27%237fb3d3%27%20stroke-width=%272%27%20stroke-linecap=%27round%27/%3E%20%3Ctext%20x=%2720%27%20y=%2738%27%20font-size=%275%27%20fill=%27%235ba3d9%27%20text-anchor=%27middle%27%20font-family=%27sans-serif%27%3ETM%3C/text%3E%20%3C/svg%3E", "6-iron": "data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2040%2040%27%3E%20%3Crect%20width=%2740%27%20height=%2740%27%20rx=%278%27%20fill=%27%233a1a0a%27/%3E%20%3C%21--%20Cobra%20iron%20-%20orange%20accent%20--%3E%20%3Crect%20x=%2712%27%20y=%2726%27%20width=%2716%27%20height=%277%27%20rx=%271%27%20fill=%27%23c0392b%27%20stroke=%27%23e67e22%27%20stroke-width=%271%27/%3E%20%3Crect%20x=%2712%27%20y=%2730%27%20width=%2716%27%20height=%272%27%20fill=%27%23e67e22%27%20opacity=%270.5%27/%3E%20%3C%21--%20Score%20lines%20--%3E%20%3Cline%20x1=%2713%27%20y1=%2727%27%20x2=%2713%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2716%27%20y1=%2727%27%20x2=%2716%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2719%27%20y1=%2727%27%20x2=%2719%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2722%27%20y1=%2727%27%20x2=%2722%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2725%27%20y1=%2727%27%20x2=%2725%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2716%27%20y1=%2726%27%20x2=%2710%27%20y2=%276%27%20stroke=%27%23e8a87c%27%20stroke-width=%272%27%20stroke-linecap=%27round%27/%3E%20%3Ctext%20x=%2720%27%20y=%2738%27%20font-size=%275%27%20fill=%27%23e67e22%27%20text-anchor=%27middle%27%20font-family=%27sans-serif%27%3ECOBRA%3C/text%3E%20%3C/svg%3E", "7-iron": "data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2040%2040%27%3E%20%3Crect%20width=%2740%27%20height=%2740%27%20rx=%278%27%20fill=%27%233a1a0a%27/%3E%20%3C%21--%20Cobra%20iron%20-%20orange%20accent%20--%3E%20%3Crect%20x=%2712%27%20y=%2726%27%20width=%2716%27%20height=%277%27%20rx=%271%27%20fill=%27%23c0392b%27%20stroke=%27%23e67e22%27%20stroke-width=%271%27/%3E%20%3Crect%20x=%2712%27%20y=%2730%27%20width=%2716%27%20height=%272%27%20fill=%27%23e67e22%27%20opacity=%270.5%27/%3E%20%3C%21--%20Score%20lines%20--%3E%20%3Cline%20x1=%2713%27%20y1=%2727%27%20x2=%2713%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2716%27%20y1=%2727%27%20x2=%2716%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2719%27%20y1=%2727%27%20x2=%2719%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2722%27%20y1=%2727%27%20x2=%2722%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2725%27%20y1=%2727%27%20x2=%2725%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2716%27%20y1=%2726%27%20x2=%2710%27%20y2=%276%27%20stroke=%27%23e8a87c%27%20stroke-width=%272%27%20stroke-linecap=%27round%27/%3E%20%3Ctext%20x=%2720%27%20y=%2738%27%20font-size=%275%27%20fill=%27%23e67e22%27%20text-anchor=%27middle%27%20font-family=%27sans-serif%27%3ECOBRA%3C/text%3E%20%3C/svg%3E", "8-iron": "data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2040%2040%27%3E%20%3Crect%20width=%2740%27%20height=%2740%27%20rx=%278%27%20fill=%27%233a1a0a%27/%3E%20%3C%21--%20Cobra%20iron%20-%20orange%20accent%20--%3E%20%3Crect%20x=%2712%27%20y=%2726%27%20width=%2716%27%20height=%277%27%20rx=%271%27%20fill=%27%23c0392b%27%20stroke=%27%23e67e22%27%20stroke-width=%271%27/%3E%20%3Crect%20x=%2712%27%20y=%2730%27%20width=%2716%27%20height=%272%27%20fill=%27%23e67e22%27%20opacity=%270.5%27/%3E%20%3C%21--%20Score%20lines%20--%3E%20%3Cline%20x1=%2713%27%20y1=%2727%27%20x2=%2713%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2716%27%20y1=%2727%27%20x2=%2716%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2719%27%20y1=%2727%27%20x2=%2719%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2722%27%20y1=%2727%27%20x2=%2722%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2725%27%20y1=%2727%27%20x2=%2725%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2716%27%20y1=%2726%27%20x2=%2710%27%20y2=%276%27%20stroke=%27%23e8a87c%27%20stroke-width=%272%27%20stroke-linecap=%27round%27/%3E%20%3Ctext%20x=%2720%27%20y=%2738%27%20font-size=%275%27%20fill=%27%23e67e22%27%20text-anchor=%27middle%27%20font-family=%27sans-serif%27%3ECOBRA%3C/text%3E%20%3C/svg%3E", "9-iron": "data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2040%2040%27%3E%20%3Crect%20width=%2740%27%20height=%2740%27%20rx=%278%27%20fill=%27%233a1a0a%27/%3E%20%3C%21--%20Cobra%20iron%20-%20orange%20accent%20--%3E%20%3Crect%20x=%2712%27%20y=%2726%27%20width=%2716%27%20height=%277%27%20rx=%271%27%20fill=%27%23c0392b%27%20stroke=%27%23e67e22%27%20stroke-width=%271%27/%3E%20%3Crect%20x=%2712%27%20y=%2730%27%20width=%2716%27%20height=%272%27%20fill=%27%23e67e22%27%20opacity=%270.5%27/%3E%20%3C%21--%20Score%20lines%20--%3E%20%3Cline%20x1=%2713%27%20y1=%2727%27%20x2=%2713%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2716%27%20y1=%2727%27%20x2=%2716%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2719%27%20y1=%2727%27%20x2=%2719%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2722%27%20y1=%2727%27%20x2=%2722%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2725%27%20y1=%2727%27%20x2=%2725%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2716%27%20y1=%2726%27%20x2=%2710%27%20y2=%276%27%20stroke=%27%23e8a87c%27%20stroke-width=%272%27%20stroke-linecap=%27round%27/%3E%20%3Ctext%20x=%2720%27%20y=%2738%27%20font-size=%275%27%20fill=%27%23e67e22%27%20text-anchor=%27middle%27%20font-family=%27sans-serif%27%3ECOBRA%3C/text%3E%20%3C/svg%3E", "PW": "data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2040%2040%27%3E%20%3Crect%20width=%2740%27%20height=%2740%27%20rx=%278%27%20fill=%27%233a1a0a%27/%3E%20%3C%21--%20Wedge%20-%20wider%20sole%2C%20more%20loft%20--%3E%20%3Cpolygon%20points=%2711%2C33%2028%2C33%2026%2C24%2013%2C24%27%20fill=%27%23c0392b%27%20stroke=%27%23e67e22%27%20stroke-width=%271%27/%3E%20%3Cline%20x1=%2711%27%20y1=%2733%27%20x2=%2728%27%20y2=%2733%27%20stroke=%27%23e67e22%27%20stroke-width=%271.5%27/%3E%20%3C%21--%20Score%20lines%20--%3E%20%3Cline%20x1=%2714%27%20y1=%2725%27%20x2=%2714%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2717%27%20y1=%2725%27%20x2=%2717%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2720%27%20y1=%2725%27%20x2=%2720%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2723%27%20y1=%2725%27%20x2=%2723%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2715%27%20y1=%2724%27%20x2=%2710%27%20y2=%276%27%20stroke=%27%23e8a87c%27%20stroke-width=%272%27%20stroke-linecap=%27round%27/%3E%20%3Ctext%20x=%2720%27%20y=%2711%27%20font-size=%275%27%20fill=%27%23e67e22%27%20text-anchor=%27middle%27%20font-family=%27sans-serif%27%3ECOBRA%3C/text%3E%20%3C/svg%3E", "GW": "data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2040%2040%27%3E%20%3Crect%20width=%2740%27%20height=%2740%27%20rx=%278%27%20fill=%27%233a1a0a%27/%3E%20%3C%21--%20Wedge%20-%20wider%20sole%2C%20more%20loft%20--%3E%20%3Cpolygon%20points=%2711%2C33%2028%2C33%2026%2C24%2013%2C24%27%20fill=%27%23c0392b%27%20stroke=%27%23e67e22%27%20stroke-width=%271%27/%3E%20%3Cline%20x1=%2711%27%20y1=%2733%27%20x2=%2728%27%20y2=%2733%27%20stroke=%27%23e67e22%27%20stroke-width=%271.5%27/%3E%20%3C%21--%20Score%20lines%20--%3E%20%3Cline%20x1=%2714%27%20y1=%2725%27%20x2=%2714%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2717%27%20y1=%2725%27%20x2=%2717%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2720%27%20y1=%2725%27%20x2=%2720%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2723%27%20y1=%2725%27%20x2=%2723%27%20y2=%2732%27%20stroke=%27%23e67e22%27%20stroke-width=%270.5%27%20opacity=%270.6%27/%3E%20%3Cline%20x1=%2715%27%20y1=%2724%27%20x2=%2710%27%20y2=%276%27%20stroke=%27%23e8a87c%27%20stroke-width=%272%27%20stroke-linecap=%27round%27/%3E%20%3Ctext%20x=%2720%27%20y=%2711%27%20font-size=%275%27%20fill=%27%23e67e22%27%20text-anchor=%27middle%27%20font-family=%27sans-serif%27%3ECOBRA%3C/text%3E%20%3C/svg%3E", "SW": "data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2040%2040%27%3E%20%3Crect%20width=%2740%27%20height=%2740%27%20rx=%278%27%20fill=%27%231a1a2e%27/%3E%20%3C%21--%20Kirkland%20wedge%20-%20silver/chrome%20--%3E%20%3Cpolygon%20points=%2711%2C33%2028%2C33%2026%2C24%2013%2C24%27%20fill=%27%235a5a7a%27%20stroke=%27%239090b0%27%20stroke-width=%271%27/%3E%20%3Cline%20x1=%2711%27%20y1=%2733%27%20x2=%2728%27%20y2=%2733%27%20stroke=%27%239090b0%27%20stroke-width=%271.5%27/%3E%20%3Cline%20x1=%2714%27%20y1=%2725%27%20x2=%2714%27%20y2=%2732%27%20stroke=%27%23b0b0c8%27%20stroke-width=%270.5%27%20opacity=%270.7%27/%3E%20%3Cline%20x1=%2717%27%20y1=%2725%27%20x2=%2717%27%20y2=%2732%27%20stroke=%27%23b0b0c8%27%20stroke-width=%270.5%27%20opacity=%270.7%27/%3E%20%3Cline%20x1=%2720%27%20y1=%2725%27%20x2=%2720%27%20y2=%2732%27%20stroke=%27%23b0b0c8%27%20stroke-width=%270.5%27%20opacity=%270.7%27/%3E%20%3Cline%20x1=%2723%27%20y1=%2725%27%20x2=%2723%27%20y2=%2732%27%20stroke=%27%23b0b0c8%27%20stroke-width=%270.5%27%20opacity=%270.7%27/%3E%20%3Cline%20x1=%2715%27%20y1=%2724%27%20x2=%2710%27%20y2=%276%27%20stroke=%27%239090b0%27%20stroke-width=%272%27%20stroke-linecap=%27round%27/%3E%20%3Ctext%20x=%2720%27%20y=%2711%27%20font-size=%274%27%20fill=%27%239090b0%27%20text-anchor=%27middle%27%20font-family=%27sans-serif%27%3EKL%3C/text%3E%20%3C/svg%3E", "LW": "data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2040%2040%27%3E%20%3Crect%20width=%2740%27%20height=%2740%27%20rx=%278%27%20fill=%27%231a1a2e%27/%3E%20%3C%21--%20Kirkland%20wedge%20-%20silver/chrome%20--%3E%20%3Cpolygon%20points=%2711%2C33%2028%2C33%2026%2C24%2013%2C24%27%20fill=%27%235a5a7a%27%20stroke=%27%239090b0%27%20stroke-width=%271%27/%3E%20%3Cline%20x1=%2711%27%20y1=%2733%27%20x2=%2728%27%20y2=%2733%27%20stroke=%27%239090b0%27%20stroke-width=%271.5%27/%3E%20%3Cline%20x1=%2714%27%20y1=%2725%27%20x2=%2714%27%20y2=%2732%27%20stroke=%27%23b0b0c8%27%20stroke-width=%270.5%27%20opacity=%270.7%27/%3E%20%3Cline%20x1=%2717%27%20y1=%2725%27%20x2=%2717%27%20y2=%2732%27%20stroke=%27%23b0b0c8%27%20stroke-width=%270.5%27%20opacity=%270.7%27/%3E%20%3Cline%20x1=%2720%27%20y1=%2725%27%20x2=%2720%27%20y2=%2732%27%20stroke=%27%23b0b0c8%27%20stroke-width=%270.5%27%20opacity=%270.7%27/%3E%20%3Cline%20x1=%2723%27%20y1=%2725%27%20x2=%2723%27%20y2=%2732%27%20stroke=%27%23b0b0c8%27%20stroke-width=%270.5%27%20opacity=%270.7%27/%3E%20%3Cline%20x1=%2715%27%20y1=%2724%27%20x2=%2710%27%20y2=%276%27%20stroke=%27%239090b0%27%20stroke-width=%272%27%20stroke-linecap=%27round%27/%3E%20%3Ctext%20x=%2720%27%20y=%2711%27%20font-size=%274%27%20fill=%27%239090b0%27%20text-anchor=%27middle%27%20font-family=%27sans-serif%27%3EKL%3C/text%3E%20%3C/svg%3E", "Putter": "data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2040%2040%27%3E%20%3Crect%20width=%2740%27%20height=%2740%27%20rx=%278%27%20fill=%27%231a1a2e%27/%3E%20%3C%21--%20Mallet%20putter%20-%20Kirkland%20KS1%20style%20--%3E%20%3Crect%20x=%2710%27%20y=%2726%27%20width=%2720%27%20height=%278%27%20rx=%273%27%20fill=%27%235a5a7a%27%20stroke=%27%239090b0%27%20stroke-width=%271%27/%3E%20%3C%21--%20Face%20insert%20--%3E%20%3Crect%20x=%2710%27%20y=%2726%27%20width=%274%27%20height=%278%27%20rx=%271%27%20fill=%27%233a3a5a%27%20stroke=%27%239090b0%27%20stroke-width=%270.5%27/%3E%20%3C%21--%20Alignment%20line%20--%3E%20%3Cline%20x1=%2720%27%20y1=%2727%27%20x2=%2720%27%20y2=%2733%27%20stroke=%27%23e0e0ff%27%20stroke-width=%271%27%20opacity=%270.6%27/%3E%20%3C%21--%20Shaft%20-%20straight%20for%20putter%20--%3E%20%3Cline%20x1=%2716%27%20y1=%2726%27%20x2=%2716%27%20y2=%276%27%20stroke=%27%239090b0%27%20stroke-width=%272%27%20stroke-linecap=%27round%27/%3E%20%3Ctext%20x=%2720%27%20y=%2711%27%20font-size=%274%27%20fill=%27%239090b0%27%20text-anchor=%27middle%27%20font-family=%27sans-serif%27%3EKS1%3C/text%3E%20%3C/svg%3E"};
+
 function renderBag(){
   const GRIP_THRESHOLD=40;
   document.getElementById('bag-clubs-list').innerHTML=bagClubs.map(c=>{
-    const needsGrip=c.rounds>=GRIP_THRESHOLD;
+    const needsGrip=c.lastGrip!=="Unknown"&&c.rounds>=GRIP_THRESHOLD;
     const avg=clubs.find(x=>x.club===c.name)?.avg||null;
+    const imgSrc = CLUB_IMGS[c.name];
     return`<div class="club-bag-card">
       <div class="cbc-top">
-        <div class="cbc-icon">${c.icon}</div>
+        <div class="cbc-icon" style="background:none;padding:0;overflow:hidden">${imgSrc?`<img src="${imgSrc}" style="width:34px;height:34px;object-fit:contain;border-radius:8px">`:c.icon}</div>
         <div style="flex:1">
           <div class="cbc-name">${c.name}${needsGrip?`<span class="grip-warning">⚠️ Regrip</span>`:''}</div>
           <div class="cbc-spec">${c.brand} ${c.model} · ${c.loft} · ${c.flex} · ${c.shaft}</div>
@@ -1590,6 +1715,274 @@ function fetchLiveWeather() {
 // Load weather on start, then refresh every 30 minutes
 fetchLiveWeather();
 setInterval(fetchLiveWeather, 30 * 60 * 1000);
+
+
+// ── LOG ROUND ────────────────────────────────────────────────────────────────
+let logHoles = 18;
+let logCourseName = '';
+let logCourseDetected = false;
+let extrasOpen = false;
+
+// Nearby courses with approximate GPS coordinates (Ontario)
+const COURSE_COORDS = [
+  {name:"Whistle Bear GC",       lat:43.4180, lng:-80.3420},
+  {name:"Cambridge G&CC",        lat:43.3890, lng:-80.3560},
+  {name:"Galt CC",               lat:43.3650, lng:-80.3190},
+  {name:"Rockway Vineyards",     lat:43.4050, lng:-80.4420},
+  {name:"Grand Valley GC",       lat:43.8960, lng:-80.3230},
+  {name:"Southbrook G&CC",       lat:43.4480, lng:-80.4860},
+  {name:"Mitchell Golf Club",    lat:43.4560, lng:-81.2040},
+  {name:"Knollwood Golf Club",   lat:43.2980, lng:-79.8760},
+  {name:"Flamborough Hills GC",  lat:43.3540, lng:-79.9870},
+  {name:"Mystic Golf Club",      lat:43.3760, lng:-79.7980},
+  {name:"Glen Abbey GC",         lat:43.4390, lng:-79.7260},
+  {name:"Copetown Woods GC",     lat:43.2820, lng:-80.1040},
+  {name:"Millcroft Golf Club",   lat:43.3980, lng:-79.8560},
+  {name:"Scarlett Woods GC",     lat:43.7180, lng:-79.5280},
+  {name:"Royal Woodbine GC",     lat:43.6780, lng:-79.5520},
+  {name:"Walter Gretzky GC",     lat:43.1340, lng:-80.2560},
+  {name:"Lowville Heights GC",   lat:43.4020, lng:-79.9230},
+  {name:"Century Pines GC",      lat:43.2340, lng:-79.8120},
+  {name:"Savannah Golf Links",   lat:43.1780, lng:-80.1340},
+  {name:"Dragons Fire GC",       lat:43.9560, lng:-79.4230},
+  {name:"North Granite Ridge GC",lat:44.2340, lng:-79.8760},
+  {name:"Chippewa Creek GC",     lat:42.8450, lng:-79.2340},
+  {name:"Southern Pines G&CC",   lat:42.9120, lng:-79.1560},
+  {name:"Beechwood G&CC",        lat:43.0980, lng:-79.3450},
+  {name:"Crosswinds G&CC",       lat:43.2560, lng:-80.4120},
+  {name:"Tyandaga Municipal GC", lat:43.3240, lng:-79.8340},
+  {name:"Banty's Roost G&CC",    lat:43.1890, lng:-79.9230},
+];
+
+function haversineKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function detectNearestCourse(lat, lng) {
+  let nearest = null, minDist = Infinity;
+  COURSE_COORDS.forEach(c => {
+    const d = haversineKm(lat, lng, c.lat, c.lng);
+    if (d < minDist) { minDist = d; nearest = c; }
+  });
+  return nearest ? { ...nearest, dist: minDist } : null;
+}
+
+function initLogRound() {
+  // Set today's date in header
+  const today = new Date().toLocaleDateString('en-CA', {weekday:'short', month:'short', day:'numeric'});
+  document.getElementById('log-header-sub').textContent = today;
+
+  // Reset values to last round's score as starting point
+  const lastRound = rounds[0];
+  if (lastRound) {
+    document.getElementById('log-score-val').textContent = lastRound.score;
+    document.getElementById('log-putts-val').textContent = Math.round(lastRound.putts) || 36;
+    document.getElementById('log-gir-val').textContent = 0;
+  }
+
+  // GPS course detection
+  logCourseDetected = false;
+  document.getElementById('log-course-detected').textContent = 'Detecting nearby course...';
+  document.getElementById('log-course-dist').textContent = '';
+  document.getElementById('log-course-icon').textContent = '📍';
+  document.getElementById('log-course-override').style.display = 'none';
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      const nearest = detectNearestCourse(lat, lng);
+
+      if (nearest && nearest.dist < 5) {
+        // Within 5km — likely playing here
+        logCourseName = nearest.name;
+        logCourseDetected = true;
+        document.getElementById('log-course-detected').textContent = nearest.name;
+        document.getElementById('log-course-dist').textContent = `${nearest.dist.toFixed(1)} km away · tap Change to edit`;
+        document.getElementById('log-course-icon').textContent = '⛳';
+        document.getElementById('log-course-strip').style.background = 'var(--green-light)';
+      } else if (nearest) {
+        // Found a course but it's far — show it but allow override
+        logCourseName = nearest.name;
+        document.getElementById('log-course-detected').textContent = nearest.name;
+        document.getElementById('log-course-dist').textContent = `${nearest.dist.toFixed(1)} km away · tap Change if wrong`;
+        document.getElementById('log-course-icon').textContent = '🗺️';
+      } else {
+        showCourseOverride();
+      }
+    }, () => {
+      // Location denied — show manual entry
+      document.getElementById('log-course-detected').textContent = 'Location unavailable';
+      document.getElementById('log-course-dist').textContent = 'Tap Change to enter course name';
+      showCourseOverride();
+    }, { timeout: 8000, enableHighAccuracy: false });
+  } else {
+    showCourseOverride();
+  }
+}
+
+function showCourseOverride() {
+  document.getElementById('log-course-override').style.display = 'block';
+  document.getElementById('log-course-manual').focus();
+  // Show suggestions from played courses
+  const suggestions = [...new Set(rounds.map(r => r.course))].slice(0, 5);
+  document.getElementById('log-course-suggestions').innerHTML = suggestions.map(c =>
+    `<div onclick="selectCourse('${c.replace(/'/g,"\'")}'" style="padding:8px 12px;background:var(--bg-card2);border:1px solid var(--border);border-radius:8px;margin-bottom:5px;font-size:12px;color:var(--text);cursor:pointer">${c}</div>`
+  ).join('');
+}
+
+function overrideCourse() {
+  document.getElementById('log-course-override').style.display =
+    document.getElementById('log-course-override').style.display === 'none' ? 'block' : 'none';
+  if (document.getElementById('log-course-override').style.display === 'block') {
+    const suggestions = [...new Set(rounds.map(r => r.course))].slice(0, 6);
+    document.getElementById('log-course-suggestions').innerHTML = suggestions.map(c =>
+      `<div onclick="selectCourse('${c.replace(/'/g,"\'")}'" style="padding:8px 12px;background:var(--bg-card2);border:1px solid var(--border);border-radius:8px;margin-bottom:5px;font-size:12px;color:var(--text);cursor:pointer">${c}</div>`
+    ).join('');
+  }
+}
+
+function selectCourse(name) {
+  logCourseName = name;
+  document.getElementById('log-course-detected').textContent = name;
+  document.getElementById('log-course-dist').textContent = 'Tap Change to edit';
+  document.getElementById('log-course-icon').textContent = '⛳';
+  document.getElementById('log-course-override').style.display = 'none';
+}
+
+function adjustVal(id, delta) {
+  const el = document.getElementById(id);
+  let val = parseInt(el.textContent) + delta;
+  // Clamp values
+  if (id === 'log-score-val') val = Math.max(18, Math.min(200, val));
+  if (id === 'log-gir-val')   val = Math.max(0, Math.min(logHoles, val));
+  if (id === 'log-putts-val') val = Math.max(0, Math.min(logHoles * 4, val));
+  el.textContent = val;
+}
+
+function setLogHoles(n, btn) {
+  logHoles = n;
+  document.getElementById('holes-btn-18').style.background = n === 18 ? 'var(--green)' : 'var(--bg-card2)';
+  document.getElementById('holes-btn-18').style.color = n === 18 ? '#fff' : 'var(--text-dim)';
+  document.getElementById('holes-btn-18').style.border = n === 18 ? 'none' : '1px solid var(--border)';
+  document.getElementById('holes-btn-9').style.background = n === 9 ? 'var(--green)' : 'var(--bg-card2)';
+  document.getElementById('holes-btn-9').style.color = n === 9 ? '#fff' : 'var(--text-dim)';
+  document.getElementById('holes-btn-9').style.border = n === 9 ? 'none' : '1px solid var(--border)';
+  document.getElementById('log-fw-opp').value = n === 9 ? '7' : '14';
+}
+
+function toggleExtras() {
+  extrasOpen = !extrasOpen;
+  document.getElementById('log-extras').style.display = extrasOpen ? 'block' : 'none';
+  document.getElementById('extras-chevron').textContent = extrasOpen ? '▾' : '›';
+}
+
+function saveRound() {
+  // Get course name
+  const manualInput = document.getElementById('log-course-manual').value.trim();
+  const course = manualInput || logCourseName || 'Unknown Course';
+
+  if (!course || course === 'Unknown Course') {
+    alert('Please enter a course name');
+    overrideCourse();
+    return;
+  }
+
+  const score  = parseInt(document.getElementById('log-score-val').textContent) || 0;
+  const gir    = parseInt(document.getElementById('log-gir-val').textContent) || 0;
+  const putts  = parseInt(document.getElementById('log-putts-val').textContent) || 0;
+  const fw     = parseInt(document.getElementById('log-fw')?.value) || 0;
+  const fwOpp  = parseInt(document.getElementById('log-fw-opp')?.value) || (logHoles === 9 ? 7 : 14);
+  const cal    = parseInt(document.getElementById('log-cal')?.value) || 0;
+  const hr     = parseInt(document.getElementById('log-hr')?.value) || 0;
+
+  // Get par from known courses or default
+  const knownCourse = rounds.find(r => r.course === course);
+  const par = knownCourse ? knownCourse.par : (logHoles === 9 ? 36 : 72);
+  const stp = score - par;
+  const fwPct = fwOpp > 0 ? Math.round(fw / fwOpp * 100) : 0;
+
+  // Weather from current header
+  const wxIcon = document.getElementById('wx-icon')?.textContent || '⛳';
+  const wxDesc = document.getElementById('wx-desc')?.textContent || '';
+
+  const newRound = {
+    id: 'r' + Date.now(),
+    date: new Date().toISOString().split('T')[0],
+    course,
+    score,
+    par,
+    stp,
+    holes: logHoles,
+    fw,
+    fwOpp,
+    gir,
+    putts,
+    drive: 0,
+    fairPct: fwPct,
+    wx: { icon: wxIcon, desc: wxDesc },
+    calories: cal,
+    avgHR: hr,
+    source: 'Zepp/Manual',
+  };
+
+  rounds.unshift(newRound);
+
+  // Persist to localStorage
+  try {
+    const saved = JSON.parse(localStorage.getItem('golf-manual-rounds') || '[]');
+    saved.unshift(newRound);
+    localStorage.setItem('golf-manual-rounds', JSON.stringify(saved.slice(0, 200)));
+  } catch(e) {}
+
+  // Refresh all views
+  renderCards();
+  document.getElementById('dashboard-rounds').innerHTML = rounds.slice(0, 4).map(roundHTML).join('');
+  document.getElementById('all-rounds-list').innerHTML = rounds.map(roundHTML).join('');
+  renderCourseList(computeCourses());
+  if (document.getElementById('v-trends').classList.contains('active')) setTimeout(drawCharts, 50);
+
+  closeModal('modal-log-round');
+
+  // Toast
+  const t = document.createElement('div');
+  t.style.cssText = 'position:absolute;top:80px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;font-size:11px;font-weight:700;padding:8px 18px;border-radius:20px;white-space:nowrap;z-index:300;box-shadow:0 4px 12px rgba(26,122,58,.4)';
+  t.textContent = `✅ ${course} · ${score} saved!`;
+  document.getElementById('app').querySelector('.phone-screen').appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// Open log modal — trigger GPS detection
+document.getElementById('modal-log-round').addEventListener('click', function(e) {
+  if (e.target === this) return; // only on overlay click to close
+});
+// Log round modal is triggered via inline onclick with initLogRound()
+
+// Load any manually saved rounds from localStorage on startup
+(function loadManualRounds() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('golf-manual-rounds') || '[]');
+    if (saved.length) {
+      // Merge with existing rounds, avoid duplicates by ID
+      const existingIds = new Set(rounds.map(r => r.id));
+      const newOnes = saved.filter(r => !existingIds.has(r.id));
+      rounds.unshift(...newOnes);
+      rounds.sort((a, b) => b.date > a.date ? 1 : -1);
+      rounds.reverse(); // keep newest first
+      console.log(`⛳ Loaded ${newOnes.length} manually saved rounds from storage`);
+    }
+  } catch(e) {}
+})();
+
+// Set today's date as default when modal opens
+document.getElementById('modal-log-round').addEventListener('click', function(e) {
+  if (!document.getElementById('log-date').value) {
+    document.getElementById('log-date').value = new Date().toISOString().split('T')[0];
+  }
+});
 
 </script>
 </body>
