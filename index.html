@@ -801,7 +801,11 @@ canvas{display:block;width:100%!important}
               <div class="sync-source"><div class="sync-icon" style="background:rgba(255,59,92,.08)">❤️</div><div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--text)">Apple Health</div><div style="font-size:9px;color:var(--text-dim)">Steps, calories, round duration</div></div><div class="sync-live" style="color:#ff3b5c"><div class="sync-dot" style="background:#ff3b5c"></div>Connected</div></div>
               <div class="sync-source"><div class="sync-icon" style="background:rgba(61,155,233,.1)">📱</div><div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--text)">Golfshot</div><div style="font-size:9px;color:var(--text-dim)">CSV or API import</div></div><button class="sync-connect-btn">Connect</button></div>
               <div class="sync-source"><div class="sync-icon" style="background:rgba(231,76,60,.1)">🎯</div><div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--text)">Shot Scope</div><div style="font-size:9px;color:var(--text-dim)">GPS + shot tracking</div></div><button class="sync-connect-btn">Connect</button></div>
-              <div style="font-size:9px;color:var(--text-dim);text-align:center;margin-top:10px">Auto-syncs on open · background refresh every 4h</div>
+              <!-- Manual sync button -->
+              <button onclick="triggerZeppSync()" id="sync-btn" style="width:100%;padding:12px;background:var(--green);border:none;border-radius:var(--radius);color:#fff;font-size:13px;font-weight:700;font-family:var(--font);cursor:pointer;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px">
+                <span id="sync-icon">⚡</span> <span id="sync-label">Sync from Zepp Now</span>
+              </button>
+              <div style="font-size:9px;color:var(--text-dim);text-align:center;margin-top:6px">Also auto-syncs daily at 7 AM · last sync: <span id="last-sync-time">checking...</span></div>
             </div>
           </div>
         </div>
@@ -2109,6 +2113,117 @@ document.getElementById('modal-log-round').addEventListener('click', function(e)
     document.getElementById('log-date').value = new Date().toISOString().split('T')[0];
   }
 });
+
+
+// ── ZEPP SYNC BUTTON ─────────────────────────────────────────────────────────
+const GITHUB_OWNER = 'krispawlak-cmyk';
+const GITHUB_REPO  = 'golf-stats';
+const GITHUB_WORKFLOW = 'zepp_sync.yml';
+
+async function triggerZeppSync() {
+  const btn   = document.getElementById('sync-btn');
+  const icon  = document.getElementById('sync-icon');
+  const label = document.getElementById('sync-label');
+
+  // Get token from localStorage (set once, persists)
+  let token = localStorage.getItem('gh-token');
+  if (!token) {
+    token = prompt('Enter your GitHub Personal Access Token (ghp_...):\n\nThis is stored locally on your phone only.');
+    if (!token) return;
+    if (!token.startsWith('ghp_') && !token.startsWith('github_pat_')) {
+      alert('That doesn\'t look like a valid GitHub token. It should start with ghp_');
+      return;
+    }
+    localStorage.setItem('gh-token', token);
+  }
+
+  // Update button state
+  btn.style.background = 'var(--yellow)';
+  btn.style.color = '#000';
+  icon.textContent = '⏳';
+  label.textContent = 'Triggering sync...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${GITHUB_WORKFLOW}/dispatches`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json',
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+        body: JSON.stringify({ ref: 'main' }),
+      }
+    );
+
+    if (res.status === 204) {
+      // Success — workflow triggered
+      icon.textContent = '✅';
+      label.textContent = 'Sync triggered! Check back in ~30s';
+      btn.style.background = 'var(--green)';
+      btn.style.color = '#fff';
+      localStorage.setItem('last-zepp-sync', new Date().toISOString());
+      updateLastSyncTime();
+
+      // Poll for completion after 30s
+      setTimeout(async () => {
+        icon.textContent = '⚡';
+        label.textContent = 'Sync from Zepp Now';
+        btn.disabled = false;
+        btn.style.background = 'var(--green)';
+        btn.style.color = '#fff';
+      }, 30000);
+
+    } else if (res.status === 401) {
+      // Bad token
+      localStorage.removeItem('gh-token');
+      icon.textContent = '❌';
+      label.textContent = 'Token invalid — tap to re-enter';
+      btn.style.background = 'var(--red)';
+      btn.style.color = '#fff';
+      btn.disabled = false;
+      setTimeout(() => {
+        icon.textContent = '⚡';
+        label.textContent = 'Sync from Zepp Now';
+        btn.style.background = 'var(--green)';
+        btn.style.color = '#fff';
+      }, 3000);
+    } else {
+      throw new Error(`HTTP ${res.status}`);
+    }
+  } catch(e) {
+    console.error('Sync error:', e);
+    icon.textContent = '❌';
+    label.textContent = `Failed: ${e.message}`;
+    btn.style.background = 'var(--red)';
+    btn.style.color = '#fff';
+    btn.disabled = false;
+    setTimeout(() => {
+      icon.textContent = '⚡';
+      label.textContent = 'Sync from Zepp Now';
+      btn.style.background = 'var(--green)';
+      btn.style.color = '#fff';
+    }, 4000);
+  }
+}
+
+function updateLastSyncTime() {
+  const el = document.getElementById('last-sync-time');
+  if (!el) return;
+  const ts = localStorage.getItem('last-zepp-sync');
+  if (!ts) { el.textContent = 'never'; return; }
+  const d = new Date(ts);
+  const mins = Math.round((Date.now() - d) / 60000);
+  if (mins < 1) el.textContent = 'just now';
+  else if (mins < 60) el.textContent = `${mins}m ago`;
+  else el.textContent = d.toLocaleDateString('en-CA', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+// Update sync time on load
+setTimeout(updateLastSyncTime, 500);
 
 </script>
 </body>
