@@ -36,7 +36,10 @@ jobs:
           ZEPP_EMAIL:        ${{ secrets.ZEPP_EMAIL }}
           ZEPP_PASSWORD:     ${{ secrets.ZEPP_PASSWORD }}
           ZEPP_GOOGLE_TOKEN: ${{ secrets.ZEPP_GOOGLE_TOKEN }}
-        run: python -u zepp_golf_sync.py
+        run: |
+          echo "Starting sync script..."
+          python -u zepp_golf_sync.py 2>&1
+          echo "Exit code: $?"
 
       - name: Report result
         if: failure()
