@@ -278,6 +278,10 @@ canvas{display:block;width:100%!important}
 .gps-bar{background:rgba(0,0,0,.15);padding:6px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .gps-indicator{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(255,255,255,.8)}
 .gps-dot{width:7px;height:7px;border-radius:50%;background:#2ecc71;animation:gpspulse 1.5s infinite}
+@keyframes fab-pulse{
+  0%,100%{box-shadow:0 4px 16px rgba(26,122,58,.45)}
+  50%{box-shadow:0 4px 24px rgba(26,122,58,.7),0 0 0 6px rgba(26,122,58,.1)}
+}
 @keyframes gpspulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
 .wind-display{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(255,255,255,.8)}
 .caddie-main{flex:1;overflow-y:auto;padding:12px;background:var(--bg)}
@@ -473,17 +477,6 @@ canvas{display:block;width:100%!important}
         <div id="v-dashboard" class="view active">
           <div class="cards-header"><span class="cards-label">My Stats</span><button class="add-card-btn-hdr" onclick="openDrawer()">＋</button></div>
           <div class="stats-grid" id="stats-grid"></div>
-          <!-- Log Round CTA -->
-          <div onclick="openModal('modal-log-round');setTimeout(initLogRound,100)"
-            style="background:linear-gradient(135deg,var(--hdr-a),var(--hdr-b));border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 4px 12px rgba(26,122,58,.25)">
-            <div style="width:40px;height:40px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">⛳</div>
-            <div style="flex:1">
-              <div style="font-size:13px;font-weight:800;color:#fff">Log a Round</div>
-              <div style="font-size:10px;color:rgba(255,255,255,.75);margin-top:2px">Tap after playing · GPS detects your course</div>
-            </div>
-            <div style="color:rgba(255,255,255,.7);font-size:18px">›</div>
-          </div>
-
           <div class="sh">Recent Rounds</div>
           <div id="dashboard-rounds"></div>
         </div>
@@ -677,265 +670,214 @@ canvas{display:block;width:100%!important}
               <button class="modal-close" onclick="closeModal('modal-summary')">✕</button>
             </div>
             <div class="modal-body">
-              <!-- Hero score -->
-              <div class="summary-card">
-                <div class="sum-course">Knollwood GC · Sep 20, 2025 · ☀️ Sunny, 21°C</div>
-                <div class="sum-score-row">
-                  <div class="sum-score-big">96</div>
-                  <div class="sum-score-par">+9 par</div>
-                </div>
-                <div class="sum-stats">
-                  <div class="sum-stat"><div class="v">7</div><div class="l">GIR</div></div>
-                  <div class="sum-stat"><div class="v">57%</div><div class="l">FW</div></div>
-                  <div class="sum-stat"><div class="v">30</div><div class="l">Putts</div></div>
-                  <div class="sum-stat"><div class="v">231y</div><div class="l">Drive</div></div>
-                </div>
-              </div>
-              <!-- Apple Health -->
-              <div class="health-strip">
-                <div class="health-icon">❤️</div>
-                <div class="health-stats">
-                  <div class="health-stat"><div class="v">14,280</div><div class="l">Steps</div></div>
-                  <div class="health-stat"><div class="v">892</div><div class="l">Cal</div></div>
-                  <div class="health-stat"><div class="v">4h 12m</div><div class="l">Duration</div></div>
-                </div>
-              </div>
-              <!-- Highlights -->
-              <div class="sum-highlights">
-                <div class="sum-hl-title">Round Highlights</div>
-                <div class="sum-hl-item"><div class="sum-hl-icon">🦅</div><div class="sum-hl-text">Eagle on Hole 6 — longest birdie putt of the season</div><div class="sum-hl-val">−2</div></div>
-                <div class="sum-hl-item"><div class="sum-hl-icon">🎯</div><div class="sum-hl-text">Best GIR round of 2025 — 7 greens hit</div><div class="sum-hl-val">7 GIR</div></div>
-                <div class="sum-hl-item"><div class="sum-hl-icon">🏌️</div><div class="sum-hl-text">Longest drive of the season</div><div class="sum-hl-val">231y</div></div>
-                <div class="sum-hl-item"><div class="sum-hl-icon">📈</div><div class="sum-hl-text">Handicap dropped 0.4 points</div><div class="sum-hl-val">14.2</div></div>
-                <div class="sum-hl-item"><div class="sum-hl-icon">😬</div><div class="sum-hl-text">Hole 18 — double bogey (avoid driver next time)</div><div class="sum-hl-val">+2</div></div>
-              </div>
-              <!-- vs your average -->
-              <div class="sum-highlights">
-                <div class="sum-hl-title">vs Your Season Average</div>
-                <div class="sum-hl-item"><div class="sum-hl-icon">⛳</div><div class="sum-hl-text">Score (avg 88)</div><div class="sum-hl-val" style="color:var(--green)">−7 better</div></div>
-                <div class="sum-hl-item"><div class="sum-hl-icon">🟢</div><div class="sum-hl-text">GIR % (avg 28%)</div><div class="sum-hl-val" style="color:var(--green)">+11% better</div></div>
-                <div class="sum-hl-item"><div class="sum-hl-icon">🚩</div><div class="sum-hl-text">Putts (avg 33)</div><div class="sum-hl-val" style="color:var(--green)">−3 fewer</div></div>
-              </div>
-              <!-- Share card preview -->
-              <div class="sh">Share This Round</div>
-              <div class="share-preview">
-                <div class="sp-header"><div class="sp-logo">⛳ Golf Stats</div><div class="sp-date">Apr 18, 2025</div></div>
-                <div class="sp-score-big">81</div>
-                <div class="sp-course">Whistle Bear GC · +9 par · ☀️ Sunny</div>
-                <div class="sp-pills">
-                  <div class="sp-pill">7 GIR</div>
-                  <div class="sp-pill">57% FW</div>
-                  <div class="sp-pill">30 putts</div>
-                  <div class="sp-pill">231y drive</div>
-                  <div class="sp-pill">14.2 Hdcp</div>
-                </div>
-                <div class="sp-footer"><span>golf-stats.app</span><span>Handicap −0.4 📉</span></div>
-              </div>
-              <button class="share-btn" onclick="alert('📸 Share card copied to clipboard! Paste into your group chat.')">📤 Share to Group Chat</button>
-              <button class="share-btn" style="background:var(--bg-card);color:var(--green);border:1.5px solid var(--green);box-shadow:none" onclick="alert('💾 Saved to Photos!')">💾 Save to Photos</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- SCORECARD MODAL -->
-        <div class="modal-overlay" id="modal-sc" onclick="maybeClose('modal-sc',event)">
-          <div class="modal-sheet">
-            <div class="modal-handle"></div>
-            <div class="modal-header"><div><h2 id="m-course">Details</h2><p id="m-date"></p></div><button class="modal-close" onclick="closeModal('modal-sc')">✕</button></div>
-            <div class="modal-body">
-              <div id="m-weather-bar"></div>
-              <div class="sc-summ" id="m-summ"></div>
-              <table class="hole-tbl">
-                <thead><tr><th>#</th><th>Par</th><th>Sc</th><th>+/-</th><th>Putts</th><th>FW</th><th>GIR</th><th></th></tr></thead>
-                <tbody id="m-holes"></tbody>
-              </table>
-              <div style="font-size:9px;color:var(--text-dim);margin-top:8px;text-align:center">Tap any hole to expand shot detail</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- RECENT 10 MODAL -->
-        <div class="modal-overlay" id="modal-r10" onclick="maybeClose('modal-r10',event)">
-          <div class="modal-sheet">
-            <div class="modal-handle"></div>
-            <div class="modal-header"><div><h2>Last 10 Rounds</h2><p id="r10-sub"></p></div><button class="modal-close" onclick="closeModal('modal-r10')">✕</button></div>
-            <div class="modal-body" id="r10-body"></div>
-          </div>
-        </div>
-
-        <!-- BADGE DETAIL MODAL -->
-        <div class="modal-overlay" id="modal-badge" onclick="maybeClose('modal-badge',event)">
-          <div class="modal-sheet" style="max-height:50%">
-            <div class="modal-handle"></div>
-            <div class="modal-header"><div><h2 id="badge-modal-title">Achievement</h2><p id="badge-modal-date"></p></div><button class="modal-close" onclick="closeModal('modal-badge')">✕</button></div>
-            <div class="modal-body" style="text-align:center;padding:24px">
-              <div id="badge-modal-icon" style="font-size:52px;margin-bottom:12px"></div>
-              <div id="badge-modal-desc" style="font-size:12px;color:var(--text-dim);line-height:1.6"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- PROFILE MODAL -->
-        <div class="modal-overlay" id="modal-profile" onclick="maybeClose('modal-profile',event)">
-          <div class="modal-sheet">
-            <div class="modal-handle"></div>
-            <div class="modal-header"><div><h2>Profile & Settings</h2></div><button class="modal-close" onclick="closeModal('modal-profile')">✕</button></div>
-            <div class="modal-body">
-              <div class="profile-header-strip">
-                <div class="profile-avatar-lg">KP</div>
-                <div><div style="font-size:15px;font-weight:800;color:#fff">Kris P.</div><div style="font-size:10px;color:rgba(255,255,255,.75);margin-top:2px">Cambridge, ON · Handicap 14.2</div><div style="font-size:9px;color:rgba(255,255,255,.55);margin-top:3px">✓ Google · Balance 2 connected · 2026 season</div></div>
-              </div>
-              <div class="p-stats-grid">
-                <div class="p-stat"><div class="v">14</div><div class="l">Rounds '25</div></div>
-                <div class="p-stat"><div class="v">81</div><div class="l">Best '25</div></div>
-                <div class="p-stat"><div class="v">14.2</div><div class="l">Handicap</div></div>
-                <div class="p-stat"><div class="v">0/15</div><div class="l">Badges '25</div></div>
-              </div>
-              <div class="dark-toggle" onclick="toggleDark()">
-                <div><div style="font-size:12px;font-weight:700;color:var(--text)">Dark Mode</div><div style="font-size:10px;color:var(--text-dim)">Switch theme</div></div>
-                <div class="toggle-track" id="dark-track"><div class="toggle-thumb"></div></div>
-              </div>
-              <div class="sh" style="margin-top:4px">Data Sources</div>
-              <div class="sync-source"><div class="sync-icon">⌚</div><div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--text)">Amazfit Balance 2</div><div style="font-size:9px;color:var(--text-dim)">Zepp sync · Last: 2 min ago</div></div><div class="sync-live"><div class="sync-dot"></div>Live</div></div>
-              <div class="sync-source"><div class="sync-icon" style="background:rgba(155,89,182,.1)">📡</div><div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--text)">Arccos</div><div style="font-size:9px;color:var(--text-dim)">Auto club detection</div></div><button class="sync-connect-btn">Connect</button></div>
-              <div class="sync-source"><div class="sync-icon" style="background:rgba(255,59,92,.08)">❤️</div><div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--text)">Apple Health</div><div style="font-size:9px;color:var(--text-dim)">Steps, calories, round duration</div></div><div class="sync-live" style="color:#ff3b5c"><div class="sync-dot" style="background:#ff3b5c"></div>Connected</div></div>
-              <div class="sync-source"><div class="sync-icon" style="background:rgba(61,155,233,.1)">📱</div><div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--text)">Golfshot</div><div style="font-size:9px;color:var(--text-dim)">CSV or API import</div></div><button class="sync-connect-btn">Connect</button></div>
-              <div class="sync-source"><div class="sync-icon" style="background:rgba(231,76,60,.1)">🎯</div><div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--text)">Shot Scope</div><div style="font-size:9px;color:var(--text-dim)">GPS + shot tracking</div></div><button class="sync-connect-btn">Connect</button></div>
-              <!-- Manual sync button -->
-              <button onclick="triggerZeppSync()" id="sync-btn" style="width:100%;padding:12px;background:var(--green);border:none;border-radius:var(--radius);color:#fff;font-size:13px;font-weight:700;font-family:var(--font);cursor:pointer;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px">
-                <span id="sync-icon">⚡</span> <span id="sync-label">Sync from Zepp Now</span>
-              </button>
-              <div style="font-size:9px;color:var(--text-dim);text-align:center;margin-top:6px">Also auto-syncs daily at 7 AM · last sync: <span id="last-sync-time">checking...</span></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- SIGN IN MODAL -->
-        <div class="modal-overlay" id="modal-signin" onclick="maybeClose('modal-signin',event)">
-          <div class="modal-sheet" style="max-height:48%">
-            <div class="modal-handle"></div>
-            <div class="modal-header"><div><h2>Add Friends</h2><p>Connect via Google</p></div><button class="modal-close" onclick="closeModal('modal-signin')">✕</button></div>
-            <div class="modal-body">
-              <button style="width:100%;padding:11px;background:#fff;border:1px solid #ddd;border-radius:var(--radius);color:#333;font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer;margin-bottom:8px">G  Continue with Google</button>
-              <div style="font-size:10px;color:var(--text-dim);text-align:center;margin:8px 0">— or share your invite —</div>
-              <div style="background:var(--green-light);border:1px solid rgba(26,122,58,.2);border-radius:10px;padding:10px;font-size:11px;color:var(--green);text-align:center;font-weight:700">golf-stats.app/join/KP-7F2A</div>
-            </div>
-          </div>
-        </div>
-
-
-        <!-- ── LOG ROUND MODAL ── -->
-        <div class="modal-overlay" id="modal-log-round" onclick="maybeClose('modal-log-round',event)">
-          <div class="modal-sheet">
-            <div class="modal-handle"></div>
-            <div class="modal-header">
-              <div><h2>⛳ Log Round</h2><p id="log-header-sub">Detecting your location...</p></div>
-              <button class="modal-close" onclick="closeModal('modal-log-round')">✕</button>
-            </div>
-            <div class="modal-body">
 
               <!-- Course detection strip -->
-              <div id="log-course-strip" style="background:var(--green-light);border:1px solid rgba(26,122,58,.2);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
-                <div id="log-course-icon" style="font-size:24px">📍</div>
-                <div style="flex:1">
-                  <div id="log-course-detected" style="font-size:13px;font-weight:700;color:var(--text)">Detecting nearby course...</div>
-                  <div id="log-course-dist" style="font-size:10px;color:var(--text-dim);margin-top:2px"></div>
+              <div id="log-course-strip" style="background:var(--green-light);border:1px solid rgba(26,122,58,.2);border-radius:var(--radius);padding:11px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;cursor:pointer" onclick="overrideCourse()">
+                <div id="log-course-icon" style="font-size:22px">📍</div>
+                <div style="flex:1;min-width:0">
+                  <div id="log-course-detected" style="font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Detecting course...</div>
+                  <div id="log-course-dist" style="font-size:10px;color:var(--text-dim);margin-top:1px">Allow location for GPS detection</div>
                 </div>
-                <button onclick="overrideCourse()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:10px;color:var(--text-dim);font-family:var(--font);cursor:pointer">Change</button>
+                <div style="color:var(--text-dim);font-size:11px;flex-shrink:0">Change ›</div>
               </div>
 
-              <!-- Course override (hidden by default) -->
+              <!-- Course override -->
               <div id="log-course-override" style="display:none;margin-bottom:10px">
-                <input type="text" id="log-course-manual" placeholder="Type course name..." style="width:100%;background:var(--bg-card2);border:1px solid var(--green);border-radius:10px;padding:10px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none">
-                <div id="log-course-suggestions" style="margin-top:6px"></div>
+                <input type="text" id="log-course-manual" placeholder="Type course name..." style="width:100%;background:var(--bg-card2);border:1.5px solid var(--green);border-radius:10px;padding:10px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none">
+                <div id="log-course-suggestions" style="margin-top:5px"></div>
               </div>
 
-              <!-- The 3 numbers -->
-              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
-                <div style="text-align:center">
-                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);margin-bottom:8px">Score</div>
-                  <div style="display:flex;align-items:center;justify-content:center;gap:6px">
-                    <button onclick="adjustVal('log-score-val',-1)" style="width:28px;height:28px;border-radius:50%;background:var(--bg-card2);border:1px solid var(--border);color:var(--text);font-size:16px;cursor:pointer;font-family:var(--font)">−</button>
-                    <div id="log-score-val" style="font-size:28px;font-weight:900;color:var(--green);min-width:44px;text-align:center">96</div>
-                    <button onclick="adjustVal('log-score-val',1)" style="width:28px;height:28px;border-radius:50%;background:var(--bg-card2);border:1px solid var(--border);color:var(--text);font-size:16px;cursor:pointer;font-family:var(--font)">＋</button>
+              <!-- Score row — big dials -->
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">
+                <div style="text-align:center;background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 6px">
+                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);margin-bottom:6px">Score</div>
+                  <div style="display:flex;align-items:center;justify-content:center;gap:4px">
+                    <button onclick="adjustVal('log-score-val',-1)" style="width:26px;height:26px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-size:15px;cursor:pointer;font-family:var(--font);flex-shrink:0">−</button>
+                    <div id="log-score-val" style="font-size:26px;font-weight:900;color:var(--green);min-width:40px;text-align:center">96</div>
+                    <button onclick="adjustVal('log-score-val',1)" style="width:26px;height:26px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-size:15px;cursor:pointer;font-family:var(--font);flex-shrink:0">+</button>
                   </div>
                 </div>
-                <div style="text-align:center">
-                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);margin-bottom:8px">GIR</div>
-                  <div style="display:flex;align-items:center;justify-content:center;gap:6px">
-                    <button onclick="adjustVal('log-gir-val',-1)" style="width:28px;height:28px;border-radius:50%;background:var(--bg-card2);border:1px solid var(--border);color:var(--text);font-size:16px;cursor:pointer;font-family:var(--font)">−</button>
-                    <div id="log-gir-val" style="font-size:28px;font-weight:900;color:var(--green);min-width:44px;text-align:center">0</div>
-                    <button onclick="adjustVal('log-gir-val',1)" style="width:28px;height:28px;border-radius:50%;background:var(--bg-card2);border:1px solid var(--border);color:var(--text);font-size:16px;cursor:pointer;font-family:var(--font)">＋</button>
+                <div style="text-align:center;background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 6px">
+                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);margin-bottom:6px">GIR</div>
+                  <div style="display:flex;align-items:center;justify-content:center;gap:4px">
+                    <button onclick="adjustVal('log-gir-val',-1)" style="width:26px;height:26px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-size:15px;cursor:pointer;font-family:var(--font);flex-shrink:0">−</button>
+                    <div id="log-gir-val" style="font-size:26px;font-weight:900;color:var(--green);min-width:40px;text-align:center">0</div>
+                    <button onclick="adjustVal('log-gir-val',1)" style="width:26px;height:26px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-size:15px;cursor:pointer;font-family:var(--font);flex-shrink:0">+</button>
                   </div>
                 </div>
-                <div style="text-align:center">
-                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);margin-bottom:8px">Putts</div>
-                  <div style="display:flex;align-items:center;justify-content:center;gap:6px">
-                    <button onclick="adjustVal('log-putts-val',-1)" style="width:28px;height:28px;border-radius:50%;background:var(--bg-card2);border:1px solid var(--border);color:var(--text);font-size:16px;cursor:pointer;font-family:var(--font)">−</button>
-                    <div id="log-putts-val" style="font-size:28px;font-weight:900;color:var(--green);min-width:44px;text-align:center">36</div>
-                    <button onclick="adjustVal('log-putts-val',1)" style="width:28px;height:28px;border-radius:50%;background:var(--bg-card2);border:1px solid var(--border);color:var(--text);font-size:16px;cursor:pointer;font-family:var(--font)">＋</button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Optional extras (collapsed) -->
-              <div id="log-extras-toggle" onclick="toggleExtras()" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:10px">
-                <div style="font-size:11px;font-weight:600;color:var(--text-dim)">➕ Optional: Fairways, Calories, Heart Rate</div>
-                <div id="extras-chevron" style="color:var(--text-dim);font-size:13px">›</div>
-              </div>
-              <div id="log-extras" style="display:none;margin-bottom:10px">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-                  <div>
-                    <div style="font-size:9px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Fairways Hit</div>
-                    <input type="number" id="log-fw" placeholder="7" min="0" max="14" style="width:100%;background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none">
-                  </div>
-                  <div>
-                    <div style="font-size:9px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">of</div>
-                    <input type="number" id="log-fw-opp" placeholder="14" value="14" min="0" max="14" style="width:100%;background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none">
-                  </div>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-                  <div>
-                    <div style="font-size:9px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Calories</div>
-                    <input type="number" id="log-cal" placeholder="800" style="width:100%;background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none">
-                  </div>
-                  <div>
-                    <div style="font-size:9px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Avg HR (bpm)</div>
-                    <input type="number" id="log-hr" placeholder="88" style="width:100%;background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none">
+                <div style="text-align:center;background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 6px">
+                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);margin-bottom:6px">Putts</div>
+                  <div style="display:flex;align-items:center;justify-content:center;gap:4px">
+                    <button onclick="adjustVal('log-putts-val',-1)" style="width:26px;height:26px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-size:15px;cursor:pointer;font-family:var(--font);flex-shrink:0">−</button>
+                    <div id="log-putts-val" style="font-size:26px;font-weight:900;color:var(--green);min-width:40px;text-align:center">36</div>
+                    <button onclick="adjustVal('log-putts-val',1)" style="width:26px;height:26px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-size:15px;cursor:pointer;font-family:var(--font);flex-shrink:0">+</button>
                   </div>
                 </div>
               </div>
 
-              <!-- Holes + Tournament toggles -->
+              <!-- Second row: FW, Cal, HR -->
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">
+                <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 6px">
+                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-dim);margin-bottom:4px;text-align:center">FW Hit</div>
+                  <input type="number" id="log-fw" placeholder="7" min="0" max="14"
+                    style="width:100%;background:transparent;border:none;color:var(--green);font-size:20px;font-weight:800;text-align:center;outline:none;font-family:var(--font)">
+                  <div style="font-size:8px;color:var(--text-dim);text-align:center">of <span id="log-fw-opp-label">14</span></div>
+                </div>
+                <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 6px">
+                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-dim);margin-bottom:4px;text-align:center">Cal</div>
+                  <input type="number" id="log-cal" placeholder="800" min="0" max="3000"
+                    style="width:100%;background:transparent;border:none;color:var(--green);font-size:20px;font-weight:800;text-align:center;outline:none;font-family:var(--font)">
+                  <div style="font-size:8px;color:var(--text-dim);text-align:center">kcal</div>
+                </div>
+                <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 6px">
+                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-dim);margin-bottom:4px;text-align:center">Avg HR</div>
+                  <input type="number" id="log-hr" placeholder="88" min="40" max="180"
+                    style="width:100%;background:transparent;border:none;color:var(--green);font-size:20px;font-weight:800;text-align:center;outline:none;font-family:var(--font)">
+                  <div style="font-size:8px;color:var(--text-dim);text-align:center">bpm</div>
+                </div>
+              </div>
+
+              <!-- Holes + Tournament row -->
               <div style="display:flex;gap:8px;margin-bottom:10px">
-                <button onclick="setLogHoles(18,this)" id="holes-btn-18" style="flex:1;padding:9px;background:var(--green);border:none;border-radius:10px;color:#fff;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer">18 Holes</button>
-                <button onclick="setLogHoles(9,this)" id="holes-btn-9" style="flex:1;padding:9px;background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer">9 Holes</button>
+                <div style="display:flex;gap:4px;flex:1;background:var(--bg-card2);padding:3px;border-radius:12px;border:1px solid var(--border)">
+                  <button onclick="setLogHoles(18,this)" id="holes-btn-18" style="flex:1;padding:7px;border:none;border-radius:9px;background:var(--green);color:#fff;font-family:var(--font);font-size:11px;font-weight:700;cursor:pointer">18H</button>
+                  <button onclick="setLogHoles(9,this)" id="holes-btn-9" style="flex:1;padding:7px;border:none;border-radius:9px;background:none;color:var(--text-dim);font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer">9H</button>
+                </div>
+                <button onclick="toggleTournament()" id="tournament-toggle" style="flex:1;padding:7px;background:var(--bg-card2);border:1px solid var(--border);border-radius:12px;color:var(--text-dim);font-size:11px;font-weight:600;font-family:var(--font);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
+                  <span id="tournament-icon">🏆</span> <span id="tournament-label">Personal</span>
+                </button>
               </div>
 
-              <!-- Tournament toggle -->
-              <div style="margin-bottom:14px">
-                <div onclick="toggleTournament()" id="tournament-toggle" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;cursor:pointer">
-                  <div style="display:flex;align-items:center;gap:8px">
-                    <span style="font-size:16px">🏆</span>
-                    <div>
-                      <div style="font-size:12px;font-weight:600;color:var(--text)">Tournament Round</div>
-                      <div style="font-size:9px;color:var(--text-dim)">Tracked but excluded from personal bests</div>
-                    </div>
-                  </div>
-                  <div id="tournament-check" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px"></div>
-                </div>
-                <!-- Tournament type selector (hidden by default) -->
-                <div id="tournament-type-row" style="display:none;gap:6px;margin-top:6px;flex-wrap:wrap">
-                  <button onclick="setTournamentType(this,'Stroke Play')" class="t-type-btn" style="padding:5px 12px;border-radius:14px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">Stroke Play</button>
-                  <button onclick="setTournamentType(this,'Best Ball')" class="t-type-btn" style="padding:5px 12px;border-radius:14px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">Best Ball</button>
-                  <button onclick="setTournamentType(this,'Scramble')" class="t-type-btn" style="padding:5px 12px;border-radius:14px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">Scramble</button>
-                  <button onclick="setTournamentType(this,'Match Play')" class="t-type-btn" style="padding:5px 12px;border-radius:14px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">Match Play</button>
-                  <button onclick="setTournamentType(this,'Stableford')" class="t-type-btn" style="padding:5px 12px;border-radius:14px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">Stableford</button>
-                </div>
+              <!-- Tournament type (hidden) -->
+              <div id="tournament-type-row" style="display:none;gap:5px;margin-bottom:10px;flex-wrap:wrap">
+                <button onclick="setTournamentType(this,'Stroke Play')" class="t-type-btn" style="padding:5px 10px;border-radius:12px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">Stroke Play</button>
+                <button onclick="setTournamentType(this,'Best Ball')" class="t-type-btn" style="padding:5px 10px;border-radius:12px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">Best Ball</button>
+                <button onclick="setTournamentType(this,'Scramble')" class="t-type-btn" style="padding:5px 10px;border-radius:12px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">Scramble</button>
+                <button onclick="setTournamentType(this,'Match Play')" class="t-type-btn" style="padding:5px 10px;border-radius:12px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">Match Play</button>
               </div>
 
               <!-- Save button -->
               <button onclick="saveRound()" style="width:100%;padding:14px;background:var(--green);border:none;border-radius:var(--radius);color:#fff;font-size:15px;font-weight:800;font-family:var(--font);cursor:pointer;box-shadow:0 4px 16px rgba(26,122,58,.35)">✅ Save Round</button>
+
+
+            </div>
+          </div>
+        </div>
+
+        <!-- FLOATING LOG ROUND BUTTON -->
+        <div id="fab-log" onclick="openModal('modal-log-round');setTimeout(initLogRound,100)"
+          style="position:absolute;bottom:24px;right:16px;z-index:100;
+                 width:56px;height:56px;border-radius:50%;
+                 background:linear-gradient(135deg,#1a6b35,#2ecc71);
+                 box-shadow:0 4px 16px rgba(26,122,58,.5);
+                 display:flex;align-items:center;justify-content:center;
+                 cursor:pointer;">
+          <span style="font-size:26px;line-height:1">⛳</span>
+        </div>
+
+        <!-- LOG ROUND MODAL -->
+        <div class="modal-overlay" id="modal-log-round" onclick="maybeClose('modal-log-round',event)">
+          <div class="modal-sheet">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+              <div><h2>⛳ Log Round</h2><p id="log-header-sub">Today</p></div>
+              <button class="modal-close" onclick="closeModal('modal-log-round')">✕</button>
+            </div>
+            <div class="modal-body">
+
+              <!-- Course detection -->
+              <div id="log-course-strip" onclick="overrideCourse()"
+                style="background:var(--green-light);border:1px solid rgba(26,122,58,.2);border-radius:var(--radius);padding:11px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;cursor:pointer">
+                <div id="log-course-icon" style="font-size:22px">📍</div>
+                <div style="flex:1;min-width:0">
+                  <div id="log-course-detected" style="font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Detecting course...</div>
+                  <div id="log-course-dist" style="font-size:10px;color:var(--text-dim);margin-top:1px">Tap to change</div>
+                </div>
+                <div style="color:var(--text-dim);font-size:11px;flex-shrink:0">Change ›</div>
+              </div>
+
+              <!-- Course override -->
+              <div id="log-course-override" style="display:none;margin-bottom:10px">
+                <input type="text" id="log-course-manual" placeholder="Type course name..."
+                  style="width:100%;background:var(--bg-card2);border:1.5px solid var(--green);border-radius:10px;padding:10px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none">
+                <div id="log-course-suggestions" style="margin-top:5px"></div>
+              </div>
+
+              <!-- Score / GIR / Putts dials -->
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">
+                <div style="text-align:center;background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 6px">
+                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);margin-bottom:6px">Score</div>
+                  <div style="display:flex;align-items:center;justify-content:center;gap:4px">
+                    <button onclick="adjustVal('log-score-val',-1)" style="width:26px;height:26px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-size:15px;cursor:pointer;font-family:var(--font)">−</button>
+                    <div id="log-score-val" style="font-size:26px;font-weight:900;color:var(--green);min-width:40px;text-align:center">96</div>
+                    <button onclick="adjustVal('log-score-val',1)" style="width:26px;height:26px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-size:15px;cursor:pointer;font-family:var(--font)">+</button>
+                  </div>
+                </div>
+                <div style="text-align:center;background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 6px">
+                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);margin-bottom:6px">GIR</div>
+                  <div style="display:flex;align-items:center;justify-content:center;gap:4px">
+                    <button onclick="adjustVal('log-gir-val',-1)" style="width:26px;height:26px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-size:15px;cursor:pointer;font-family:var(--font)">−</button>
+                    <div id="log-gir-val" style="font-size:26px;font-weight:900;color:var(--green);min-width:40px;text-align:center">0</div>
+                    <button onclick="adjustVal('log-gir-val',1)" style="width:26px;height:26px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-size:15px;cursor:pointer;font-family:var(--font)">+</button>
+                  </div>
+                </div>
+                <div style="text-align:center;background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 6px">
+                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);margin-bottom:6px">Putts</div>
+                  <div style="display:flex;align-items:center;justify-content:center;gap:4px">
+                    <button onclick="adjustVal('log-putts-val',-1)" style="width:26px;height:26px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-size:15px;cursor:pointer;font-family:var(--font)">−</button>
+                    <div id="log-putts-val" style="font-size:26px;font-weight:900;color:var(--green);min-width:40px;text-align:center">36</div>
+                    <button onclick="adjustVal('log-putts-val',1)" style="width:26px;height:26px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-size:15px;cursor:pointer;font-family:var(--font)">+</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FW / Cal / HR inputs -->
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">
+                <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 6px;text-align:center">
+                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-dim);margin-bottom:4px">FW Hit</div>
+                  <input type="number" id="log-fw" placeholder="7" min="0" max="14"
+                    style="width:100%;background:transparent;border:none;color:var(--green);font-size:20px;font-weight:800;text-align:center;outline:none;font-family:var(--font)">
+                  <div style="font-size:8px;color:var(--text-dim)">of <span id="log-fw-opp-label">14</span></div>
+                </div>
+                <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 6px;text-align:center">
+                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-dim);margin-bottom:4px">Cal</div>
+                  <input type="number" id="log-cal" placeholder="800"
+                    style="width:100%;background:transparent;border:none;color:var(--green);font-size:20px;font-weight:800;text-align:center;outline:none;font-family:var(--font)">
+                  <div style="font-size:8px;color:var(--text-dim)">kcal</div>
+                </div>
+                <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 6px;text-align:center">
+                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-dim);margin-bottom:4px">Avg HR</div>
+                  <input type="number" id="log-hr" placeholder="88"
+                    style="width:100%;background:transparent;border:none;color:var(--green);font-size:20px;font-weight:800;text-align:center;outline:none;font-family:var(--font)">
+                  <div style="font-size:8px;color:var(--text-dim)">bpm</div>
+                </div>
+              </div>
+
+              <!-- 18H / 9H + Tournament -->
+              <div style="display:flex;gap:8px;margin-bottom:10px">
+                <div style="display:flex;gap:4px;flex:1;background:var(--bg-card2);padding:3px;border-radius:12px;border:1px solid var(--border)">
+                  <button onclick="setLogHoles(18,this)" id="holes-btn-18"
+                    style="flex:1;padding:7px;border:none;border-radius:9px;background:var(--green);color:#fff;font-family:var(--font);font-size:11px;font-weight:700;cursor:pointer">18H</button>
+                  <button onclick="setLogHoles(9,this)" id="holes-btn-9"
+                    style="flex:1;padding:7px;border:none;border-radius:9px;background:none;color:var(--text-dim);font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer">9H</button>
+                </div>
+                <button onclick="toggleTournament()" id="tournament-toggle"
+                  style="flex:1;padding:7px;background:var(--bg-card2);border:1px solid var(--border);border-radius:12px;color:var(--text-dim);font-size:11px;font-weight:600;font-family:var(--font);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
+                  🏆 <span id="tournament-label">Personal</span>
+                </button>
+              </div>
+
+              <!-- Tournament types -->
+              <div id="tournament-type-row" style="display:none;gap:5px;margin-bottom:10px;flex-wrap:wrap">
+                <button onclick="setTournamentType(this,'Stroke Play')" class="t-type-btn" style="padding:5px 10px;border-radius:12px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">Stroke Play</button>
+                <button onclick="setTournamentType(this,'Best Ball')" class="t-type-btn" style="padding:5px 10px;border-radius:12px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">Best Ball</button>
+                <button onclick="setTournamentType(this,'Scramble')" class="t-type-btn" style="padding:5px 10px;border-radius:12px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">Scramble</button>
+                <button onclick="setTournamentType(this,'Match Play')" class="t-type-btn" style="padding:5px 10px;border-radius:12px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">Match Play</button>
+              </div>
+
+              <!-- Save -->
+              <button onclick="saveRound()"
+                style="width:100%;padding:14px;background:var(--green);border:none;border-radius:var(--radius);color:#fff;font-size:15px;font-weight:800;font-family:var(--font);cursor:pointer;box-shadow:0 4px 16px rgba(26,122,58,.35)">✅ Save Round</button>
 
             </div>
           </div>
@@ -1963,27 +1905,36 @@ function setLogHoles(n, btn) {
   document.getElementById('holes-btn-9').style.background = n === 9 ? 'var(--green)' : 'var(--bg-card2)';
   document.getElementById('holes-btn-9').style.color = n === 9 ? '#fff' : 'var(--text-dim)';
   document.getElementById('holes-btn-9').style.border = n === 9 ? 'none' : '1px solid var(--border)';
-  document.getElementById('log-fw-opp').value = n === 9 ? '7' : '14';
+  const _fwopp=document.getElementById('log-fw-opp'); if(_fwopp)_fwopp.value=n===9?'7':'14'; const _fwlbl=document.getElementById('log-fw-opp-label'); if(_fwlbl)_fwlbl.textContent=n===9?'7':'14';
 }
 
 function toggleExtras() {
   extrasOpen = !extrasOpen;
-  document.getElementById('log-extras').style.display = extrasOpen ? 'block' : 'none';
+  const _ex=document.getElementById('log-extras'); if(_ex)_ex.style.display=extrasOpen?'block':'none';
   document.getElementById('extras-chevron').textContent = extrasOpen ? '▾' : '›';
 }
 
 function toggleTournament() {
   isTournament = !isTournament;
-  const check = document.getElementById('tournament-check');
   const toggle = document.getElementById('tournament-toggle');
+  const icon = document.getElementById('tournament-icon');
+  const label = document.getElementById('tournament-label');
   const typeRow = document.getElementById('tournament-type-row');
-  check.textContent = isTournament ? '✓' : '';
-  check.style.background = isTournament ? 'var(--yellow)' : 'transparent';
-  check.style.borderColor = isTournament ? 'var(--yellow)' : 'var(--border)';
-  check.style.color = '#000';
-  toggle.style.borderColor = isTournament ? 'rgba(212,160,23,.4)' : 'var(--border)';
-  toggle.style.background = isTournament ? 'rgba(212,160,23,.08)' : 'var(--bg-card2)';
-  typeRow.style.display = isTournament ? 'flex' : 'none';
+  if (isTournament) {
+    toggle.style.background = 'rgba(212,160,23,.12)';
+    toggle.style.borderColor = 'rgba(212,160,23,.4)';
+    toggle.style.color = 'var(--yellow)';
+    icon.textContent = '🏆';
+    label.textContent = 'Tournament';
+    typeRow.style.display = 'flex';
+  } else {
+    toggle.style.background = 'var(--bg-card2)';
+    toggle.style.borderColor = 'var(--border)';
+    toggle.style.color = 'var(--text-dim)';
+    icon.textContent = '🏆';
+    label.textContent = 'Personal';
+    typeRow.style.display = 'none';
+  }
 }
 
 function setTournamentType(btn, type) {
@@ -2000,7 +1951,7 @@ function setTournamentType(btn, type) {
 
 function saveRound() {
   // Get course name
-  const manualInput = document.getElementById('log-course-manual').value.trim();
+  const _lcm=document.getElementById('log-course-manual'); const manualInput=_lcm?_lcm.value.trim():'';
   const course = manualInput || logCourseName || 'Unknown Course';
 
   if (!course || course === 'Unknown Course') {
@@ -2012,10 +1963,14 @@ function saveRound() {
   const score  = parseInt(document.getElementById('log-score-val').textContent) || 0;
   const gir    = parseInt(document.getElementById('log-gir-val').textContent) || 0;
   const putts  = parseInt(document.getElementById('log-putts-val').textContent) || 0;
-  const fw     = parseInt(document.getElementById('log-fw')?.value) || 0;
-  const fwOpp  = parseInt(document.getElementById('log-fw-opp')?.value) || (logHoles === 9 ? 7 : 14);
-  const cal    = parseInt(document.getElementById('log-cal')?.value) || 0;
-  const hr     = parseInt(document.getElementById('log-hr')?.value) || 0;
+  const fwEl   = document.getElementById('log-fw');
+  const fwOppEl= document.getElementById('log-fw-opp');
+  const calEl  = document.getElementById('log-cal');
+  const hrEl   = document.getElementById('log-hr');
+  const fw     = parseInt(fwEl ? fwEl.value : 0) || 0;
+  const fwOpp  = parseInt(fwOppEl ? fwOppEl.value : (logHoles === 9 ? 7 : 14)) || (logHoles === 9 ? 7 : 14);
+  const cal    = parseInt(calEl ? calEl.value : 0) || 0;
+  const hr     = parseInt(hrEl ? hrEl.value : 0) || 0;
 
   // Get par from known courses or default
   const knownCourse = rounds.find(r => r.course === course);
@@ -2065,15 +2020,18 @@ function saveRound() {
   // courses now rendered inline in Rounds tab
   if (document.getElementById('v-trends').classList.contains('active')) setTimeout(drawCharts, 50);
 
-  // Reset tournament state
+  // Reset form
   isTournament = false;
   tournamentType = 'Stroke Play';
-  const check = document.getElementById('tournament-check');
-  if (check) { check.textContent = ''; check.style.background = 'transparent'; check.style.borderColor = 'var(--border)'; }
   const toggle = document.getElementById('tournament-toggle');
-  if (toggle) { toggle.style.borderColor = 'var(--border)'; toggle.style.background = 'var(--bg-card2)'; }
+  if (toggle) { toggle.style.background='var(--bg-card2)'; toggle.style.borderColor='var(--border)'; toggle.style.color='var(--text-dim)'; }
+  const label = document.getElementById('tournament-label');
+  if (label) label.textContent = 'Personal';
   const typeRow = document.getElementById('tournament-type-row');
   if (typeRow) typeRow.style.display = 'none';
+  const _fw=document.getElementById('log-fw'); if(_fw)_fw.value='';
+  const _cal=document.getElementById('log-cal'); if(_cal)_cal.value='';
+  const _hr=document.getElementById('log-hr'); if(_hr)_hr.value='';
 
   closeModal('modal-log-round');
 
@@ -2109,8 +2067,8 @@ document.getElementById('modal-log-round').addEventListener('click', function(e)
 
 // Set today's date as default when modal opens
 document.getElementById('modal-log-round').addEventListener('click', function(e) {
-  if (!document.getElementById('log-date').value) {
-    document.getElementById('log-date').value = new Date().toISOString().split('T')[0];
+  if (document.getElementById('log-date') && !document.getElementById('log-date').value) {
+    const _ld=document.getElementById('log-date'); if(_ld)_ld.value=new Date().toISOString().split('T')[0];
   }
 });
 
