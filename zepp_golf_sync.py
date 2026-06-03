@@ -82,33 +82,91 @@ class ZeppClient:
         return False
 
     def login_with_email(self, email: str, password: str) -> bool:
-        """Fallback: direct email/password login (if user adds password to account)."""
+        """Login with Mi account or Huami email/password — tries multiple endpoints."""
         import hashlib
         md5pw = hashlib.md5(password.encode()).hexdigest()
-        url = "https://account.huami.com/v2/client/login"
-        payload = {
-            "app_name":    "com.huami.watch.hmwatchmanager",
-            "app_version": "6.7.1",
-            "country_code": "CA",
-            "device_id":   "02:00:00:00:00:00",
-            "device_model": "iPhone",
-            "grant_type":  "password",
-            "third_name":  "huami",
-            "user_name":   email,
-            "password":    md5pw,
-            "tz": "America/Toronto",
-        }
-        try:
-            r = self.session.post(url, data=payload, timeout=15)
-            data = r.json()
-            if data.get("result") == "ok":
-                self.access_token = data["token_info"]["access_token"]
-                self.user_id = data["user_id"]
-                print(f"✅ Zepp email auth OK")
-                return True
-            print(f"❌ Email auth failed: {data.get('message','unknown')}")
-        except Exception as e:
-            print(f"❌ Email auth error: {e}")
+
+        # Endpoint variants to try in order
+        attempts = [
+            # Mi account via Xiaomi auth
+            {
+                "url": "https://account.huami.com/v2/client/login",
+                "payload": {
+                    "app_name":    "com.huami.watch.hmwatchmanager",
+                    "app_version": "6.7.1",
+                    "country_code": "CA",
+                    "device_id":   "02:00:00:00:00:00",
+                    "device_model": "iPhone14,3",
+                    "grant_type":  "password",
+                    "third_name":  "mi",
+                    "user_name":   email,
+                    "password":    md5pw,
+                    "tz":          "America/Toronto",
+                    "lang":        "en",
+                }
+            },
+            # Huami native account
+            {
+                "url": "https://account.huami.com/v2/client/login",
+                "payload": {
+                    "app_name":    "com.huami.watch.hmwatchmanager",
+                    "app_version": "6.7.1",
+                    "country_code": "CA",
+                    "device_id":   "02:00:00:00:00:00",
+                    "device_model": "iPhone14,3",
+                    "grant_type":  "password",
+                    "third_name":  "huami",
+                    "user_name":   email,
+                    "password":    md5pw,
+                    "tz":          "America/Toronto",
+                    "lang":        "en",
+                }
+            },
+            # Zepp direct API
+            {
+                "url": "https://api-mifit-us2.zepp.com/v1/user/login",
+                "payload": {
+                    "email":    email,
+                    "password": md5pw,
+                }
+            },
+        ]
+
+        for attempt in attempts:
+            try:
+                print(f"🔐 Trying: {attempt['url']}")
+                r = self.session.post(
+                    attempt["url"],
+                    data=attempt["payload"],
+                    timeout=15
+                )
+                print(f"   Status: {r.status_code}")
+                try:
+                    data = r.json()
+                except:
+                    print(f"   Non-JSON response: {r.text[:200]}")
+                    continue
+
+                # Check various success patterns
+                if data.get("result") == "ok":
+                    token_info = data.get("token_info", {})
+                    self.access_token = token_info.get("access_token") or data.get("access_token")
+                    self.user_id = data.get("user_id") or token_info.get("user_id")
+                    print(f"✅ Auth OK via {attempt['url']}")
+                    return True
+                elif data.get("code") == 1 or data.get("status") == "success":
+                    self.access_token = data.get("access_token") or data.get("data", {}).get("access_token")
+                    self.user_id = data.get("user_id") or data.get("data", {}).get("user_id")
+                    print(f"✅ Auth OK (alt format)")
+                    return True
+                else:
+                    msg = data.get("message") or data.get("msg") or data.get("error") or str(data)[:100]
+                    print(f"   ❌ Failed: {msg}")
+
+            except Exception as e:
+                print(f"   ❌ Error: {e}")
+                continue
+
         return False
 
     def get_golf_rounds(self, limit=100):
