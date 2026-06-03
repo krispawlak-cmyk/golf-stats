@@ -218,3 +218,170 @@ class ZeppClient:
         return False
 
 
+
+
+# ── DATA PARSING ──────────────────────────────────────────────────────────────
+def parse_round(raw: dict) -> dict:
+    def g(*keys, default=None):
+        v = raw
+        for k in keys:
+            v = v.get(k) if isinstance(v, dict) else None
+            if v is None:
+                return default
+        return v
+
+    ts = g("start_time") or g("startTime") or g("trackTime") or 0
+    if isinstance(ts, (int, float)) and ts > 1e9:
+        from datetime import datetime, timezone
+        dt = datetime.fromtimestamp(ts / 1000 if ts > 1e12 else ts, tz=timezone.utc)
+        date_str = dt.strftime("%Y-%m-%d")
+    else:
+        from datetime import datetime
+        date_str = str(ts)[:10] if ts else datetime.now().strftime("%Y-%m-%d")
+
+    score  = int(g("score") or g("totalScore") or g("total_score") or 0)
+    par    = int(g("par") or g("coursePar") or g("course_par") or 72)
+    holes  = int(g("holes") or g("holeCount") or g("hole_count") or 18)
+    course = str(g("courseName") or g("course_name") or g("course", "name") or "Unknown Course")
+    gir    = int(g("gir") or g("greensInRegulation") or 0)
+    putts  = int(g("totalPutts") or g("total_putts") or g("putts") or 0)
+    cal    = int(g("calorie") or g("calories") or 0)
+    dist   = float(g("distance") or 0)
+    hr_avg = int(g("heartRate", "average") or g("avg_heart_rate") or 0)
+    dur    = int(g("duration") or g("totalTime") or 0)
+    swings = int(g("totalSwings") or g("total_swings") or score or 0)
+
+    return {
+        "Round ID":      str(g("trackId") or g("track_id") or g("id") or ""),
+        "Date":          date_str,
+        "Course":        course,
+        "Holes":         holes,
+        "Score":         score,
+        "Par":           par,
+        "Score to Par":  score - par if score and par else 0,
+        "GIR":           gir,
+        "Total Putts":   putts,
+        "Swings":        swings,
+        "Distance (km)": round(dist / 1000, 2) if dist else 0,
+        "Calories":      cal,
+        "Avg HR":        hr_avg,
+        "Duration (min)":round(dur / 60) if dur else 0,
+        "Source":        "Zepp/Balance2",
+    }
+
+
+# ── GOOGLE SHEETS ─────────────────────────────────────────────────────────────
+SHEET_SCOPES = [
+    "https://spreadsheets.google.com/feeds",
+    "https://www.googleapis.com/auth/drive",
+]
+
+def get_sheets_client(creds_json: str):
+    import json, gspread
+    from google.oauth2.service_account import Credentials
+    creds_dict = json.loads(creds_json)
+    creds = Credentials.from_service_account_info(creds_dict, scopes=SHEET_SCOPES)
+    return gspread.authorize(creds)
+
+def upsert_tab(ss, tab_name, headers, rows, key_col=None):
+    import gspread, time
+    try:
+        ws = ss.worksheet(tab_name)
+    except gspread.WorksheetNotFound:
+        ws = ss.add_worksheet(title=tab_name, rows=500, cols=len(headers))
+        ws.append_row(headers, value_input_option="RAW")
+        print(f"  📋 Created tab: {tab_name}", flush=True)
+
+    if not rows:
+        print(f"  ⚠️  No rows for {tab_name}", flush=True)
+        return 0
+
+    existing = ws.get_all_records() if key_col else []
+    existing_keys = {str(r.get(key_col, "")) for r in existing}
+    new_rows = [r for r in rows if not key_col or str(r.get(key_col, "")) not in existing_keys]
+
+    if not new_rows:
+        print(f"  ✅ {tab_name}: all {len(rows)} rows already synced", flush=True)
+        return 0
+
+    if not existing:
+        ws.clear()
+        ws.append_row(headers, value_input_option="RAW")
+
+    for row in new_rows:
+        ws.append_row([row.get(h, "") for h in headers], value_input_option="USER_ENTERED")
+        time.sleep(0.1)
+
+    print(f"  ✅ {tab_name}: added {len(new_rows)} new rows", flush=True)
+    return len(new_rows)
+
+
+# ── MAIN ─────────────────────────────────────────────────────────────────────
+def main():
+    import sys, os
+    from datetime import datetime
+    print("=" * 55, flush=True)
+    print("⛳  Zepp Golf → Google Sheets Sync", flush=True)
+    print(f"    {datetime.now().strftime('%Y-%m-%d %H:%M')}", flush=True)
+    print(f"   Python {sys.version.split()[0]}", flush=True)
+    print("=" * 55, flush=True)
+
+    creds_raw  = os.environ.get("GOOGLE_CREDS_JSON", "")
+    sheet_id   = os.environ.get("GOOGLE_SHEET_ID", "")
+    zepp_email = os.environ.get("ZEPP_EMAIL", "")
+    zepp_pass  = os.environ.get("ZEPP_PASSWORD", "")
+
+    print(f"   GOOGLE_CREDS_JSON: {'✅' if creds_raw else '❌ MISSING'}", flush=True)
+    print(f"   GOOGLE_SHEET_ID:   {'✅' if sheet_id else '❌ MISSING'}", flush=True)
+    print(f"   ZEPP_EMAIL:        {'✅' if zepp_email else '❌ MISSING'}", flush=True)
+    print(f"   ZEPP_PASSWORD:     {'✅' if zepp_pass else '❌ MISSING'}", flush=True)
+
+    if not creds_raw or not sheet_id:
+        raise EnvironmentError("Missing GOOGLE_CREDS_JSON or GOOGLE_SHEET_ID")
+
+    # Auth with Zepp
+    client = ZeppClient()
+    authenticated = False
+
+    if zepp_email and zepp_pass:
+        authenticated = client.login_with_email(zepp_email, zepp_pass)
+
+    if not authenticated:
+        print("\n⚠️  Could not authenticate with Zepp.", flush=True)
+        print("   Exiting — will retry on next scheduled run.", flush=True)
+        return
+
+    # Fetch rounds
+    raw_rounds = client.get_golf_rounds(limit=200)
+    if not raw_rounds:
+        print("⚠️  No golf rounds returned from Zepp API.", flush=True)
+        return
+
+    print(f"\n📊 Parsing {len(raw_rounds)} rounds...", flush=True)
+    parsed_rounds = [parse_round(r) for r in raw_rounds]
+    parsed_rounds = [r for r in parsed_rounds if r["Score"] > 0]
+
+    # Write to Sheets
+    print(f"\n📤 Syncing to Google Sheet...", flush=True)
+    gc = get_sheets_client(creds_raw)
+    ss = gc.open_by_key(sheet_id)
+
+    round_headers = [
+        "Round ID", "Date", "Course", "Holes", "Score", "Par",
+        "Score to Par", "GIR", "Total Putts", "Swings",
+        "Distance (km)", "Calories", "Avg HR", "Duration (min)", "Source",
+    ]
+
+    upsert_tab(ss, "Rounds", round_headers, parsed_rounds, key_col="Round ID")
+
+    print(f"\n✅ Sync complete! {len(parsed_rounds)} rounds processed.", flush=True)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        import traceback
+        print(f"\n💥 Fatal error: {e}", flush=True)
+        traceback.print_exc()
+        raise
