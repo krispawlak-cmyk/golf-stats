@@ -53,9 +53,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .wx-desc{font-size:9px;color:var(--hdr-sub);margin-top:1px}
 .wx-right{text-align:right}
 .wx-cond{font-size:10px;font-weight:700;color:#fff;margin-top:1px}
-.wx-pills{display:flex;gap:4px;margin-top:8px}
-.wpill{padding:3px 8px;border-radius:12px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);font-size:9px;font-weight:600;cursor:pointer;font-family:var(--font)}
-.wpill.active{background:rgba(255,255,255,.35);color:#fff}
+
 
 /* NAV */
 .nav{display:flex;overflow-x:auto;scrollbar-width:none;padding:0 4px;background:var(--bg-card);border-bottom:1px solid var(--border);flex-shrink:0;box-shadow:0 1px 4px var(--shadow)}
@@ -457,19 +455,13 @@ canvas{display:block;width:100%!important}
             </div>
             <div class="wx-right"><div style="font-size:9px;color:var(--hdr-sub)">📍 Cambridge, ON</div><div class="wx-cond" id="wx-cond">Perfect conditions</div></div>
           </div>
-          <div class="wx-pills">
-            <button class="wpill active" onclick="setWx('sunny','☀️','22°C','Sunny · 12km/h SW','Perfect conditions',this)">☀️</button>
-            <button class="wpill" onclick="setWx('golden','🌅','18°C','Golden hour · Calm','Best time to play',this)">🌅</button>
-            <button class="wpill" onclick="setWx('cloudy','⛅','15°C','Partly cloudy · 8km/h','Still playable',this)">⛅</button>
-            <button class="wpill" onclick="setWx('rain','🌧️','11°C','Rain · 28km/h','Tough conditions',this)">🌧️</button>
-          </div>
+
         </div>
 
         <!-- NAV -->
         <nav class="nav">
           <button class="nav-btn active" onclick="show('dashboard',this)">Dashboard</button>
           <button class="nav-btn" onclick="show('rounds',this)">Rounds</button>
-          <button class="nav-btn" onclick="show('courses',this)">Courses</button>
           <button class="nav-btn" onclick="show('trends',this)">Trends</button>
           <button class="nav-btn" onclick="show('friends',this)">Friends</button>
           <button class="nav-btn" onclick="show('clubs',this)">Clubs</button>
@@ -499,7 +491,15 @@ canvas{display:block;width:100%!important}
         <!-- ROUNDS -->
         <div id="v-rounds" class="view">
           <div class="search-wrap"><span class="search-icon">🔍</span><input class="search" placeholder="Search course or date..." oninput="filterRounds(this.value)"></div>
+
+          <!-- Course stats toggle -->
+          <div style="display:flex;gap:6px;margin-bottom:10px;background:var(--bg-card2);padding:3px;border-radius:14px;border:1px solid var(--border)">
+            <button onclick="setRoundsView('list',this)" id="rv-list" style="flex:1;padding:7px;border:none;border-radius:11px;background:var(--green);color:#fff;font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">All Rounds</button>
+            <button onclick="setRoundsView('courses',this)" id="rv-courses" style="flex:1;padding:7px;border:none;border-radius:11px;background:none;color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">By Course</button>
+          </div>
+
           <div id="all-rounds-list"></div>
+          <div id="courses-list-inline" style="display:none"></div>
         </div>
 
         <!-- COURSES -->
@@ -969,7 +969,7 @@ const rounds=[
   {id:"r10",date:"2025-06-05",course:"Willow Valley Golf Course",score:69,par:72,stp:-3,holes:18,fw:14,fwOpp:14,gir:17,putts:34,drive:0,fairPct:100,wx:{icon:"☀️",desc:""},tournament:true,tournamentType:"Best Ball"},
   {id:"r11",date:"2025-05-30",course:"Dragons Fire Golf Club",score:111,par:72,stp:39,holes:18,fw:13,fwOpp:14,gir:0,putts:36,drive:0,fairPct:92,wx:{icon:"☀️",desc:""}},
   {id:"r12",date:"2024-08-10",course:"Southern Pines Golf & CC",score:74,par:72,stp:2,holes:18,fw:14,fwOpp:14,gir:3,putts:21,drive:0,fairPct:100,wx:{icon:"☀️",desc:""},tournament:true,tournamentType:"Best Ball"},
-  {id:"r13",date:"2024-07-29",course:"Granite Links Golf Club",score:60,par:36,stp:24,holes:9,fw:7,fwOpp:7,gir:8,putts:14,drive:0,fairPct:100,wx:{icon:"☀️",desc:""}},
+  {id:"r13",date:"2024-07-29",course:"Granite Links Golf Club",score:60,par:36,stp:24,holes:9,fw:7,fwOpp:7,gir:8,putts:14,drive:0,fairPct:100,wx:{icon:"☀️",desc:""},tournament:true,tournamentType:"Best Ball"},
   {id:"r14",date:"2024-06-21",course:"Glen Abbey Golf Club",score:115,par:72,stp:43,holes:18,fw:11,fwOpp:14,gir:1,putts:38,drive:0,fairPct:79,wx:{icon:"⛅",desc:""}},
   {id:"r15",date:"2024-06-12",course:"Mitchell Golf Club",score:101,par:72,stp:29,holes:18,fw:12,fwOpp:14,gir:2,putts:39,drive:0,fairPct:83,wx:{icon:"☀️",desc:""}},
   {id:"r16",date:"2024-06-06",course:"Grand Valley Golf & CC",score:74,par:72,stp:2,holes:18,fw:14,fwOpp:14,gir:10,putts:32,drive:0,fairPct:100,wx:{icon:"☀️",desc:""},tournament:true,tournamentType:"Best Ball"},
@@ -980,8 +980,8 @@ const rounds=[
   {id:"r21",date:"2023-09-18",course:"Mystic Golf Club",score:95,par:72,stp:23,holes:18,fw:13,fwOpp:14,gir:4,putts:33,drive:0,fairPct:93,wx:{icon:"☀️",desc:""}},
   {id:"r22",date:"2023-08-31",course:"North Granite Ridge Golf Course",score:112,par:72,stp:40,holes:18,fw:13,fwOpp:14,gir:1,putts:36,drive:0,fairPct:93,wx:{icon:"☀️",desc:""}},
   {id:"r23",date:"2023-06-24",course:"Flamborough Hills - Lakes",score:104,par:72,stp:32,holes:18,fw:10,fwOpp:14,gir:2,putts:36,drive:0,fairPct:71,wx:{icon:"☀️",desc:""}},
-  {id:"r24",date:"2023-06-07",course:"Savannah Golf Links",score:79,par:72,stp:7,holes:18,fw:12,fwOpp:14,gir:11,putts:36,drive:0,fairPct:85,wx:{icon:"☀️",desc:""}},
-  {id:"r25",date:"2023-06-06",course:"Mystic Golf Club",score:91,par:72,stp:19,holes:18,fw:14,fwOpp:14,gir:6,putts:36,drive:0,fairPct:100,wx:{icon:"☀️",desc:""}},
+  {id:"r24",date:"2023-06-07",course:"Savannah Golf Links",score:79,par:72,stp:7,holes:18,fw:12,fwOpp:14,gir:11,putts:36,drive:0,fairPct:85,wx:{icon:"☀️",desc:""},tournament:true,tournamentType:"Best Ball"},
+  {id:"r25",date:"2023-06-06",course:"Mystic Golf Club",score:91,par:72,stp:19,holes:18,fw:14,fwOpp:14,gir:6,putts:36,drive:0,fairPct:100,wx:{icon:"☀️",desc:""},tournament:true,tournamentType:"Best Ball"},
   {id:"r26",date:"2023-05-30",course:"Mystic Golf Club",score:109,par:72,stp:37,holes:18,fw:8,fwOpp:14,gir:3,putts:36,drive:0,fairPct:57,wx:{icon:"⛅",desc:""}},
   {id:"r27",date:"2023-05-29",course:"Flamborough Hills - Hills",score:111,par:72,stp:39,holes:18,fw:14,fwOpp:14,gir:0,putts:35,drive:0,fairPct:100,wx:{icon:"⛅",desc:""}},
   {id:"r28",date:"2023-05-26",course:"Monthill Golf and Country Club",score:109,par:72,stp:37,holes:18,fw:12,fwOpp:14,gir:2,putts:36,drive:0,fairPct:85,wx:{icon:"⛅",desc:""}},
@@ -1087,15 +1087,11 @@ const clubs=[
   {club:"Putter",  shots:0,avg:0,  brand:"Kirkland",  model:"KS1 Putter"},
 ];
 const friends=[
-  {name:"Matt H.", initials:"MH",color:"#2471a3",hdcp:8.1, lastRound:"Apr 18",lastScore:76,location:"Kitchener"},
-  {name:"Tyler B.",initials:"TB",color:"#e67e22",hdcp:18.4,lastRound:"Apr 12",lastScore:91,location:"Guelph"},
-  {name:"James W.",initials:"JW",color:"#9b59b6",hdcp:12.7,lastRound:"Apr 20",lastScore:83,location:"Cambridge"},
+  // Add friends here once Firebase backend is connected
+  // {name:"Matt H.", initials:"MH",color:"#2471a3",hdcp:8.1,lastRound:"",lastScore:0,location:"Kitchener"},
 ];
 const leaderboard=[
-  {name:"Matt H.", initials:"MH",color:"#2471a3",hdcp:8.1, gross:76,net:68},
-  {name:"Kris P.", initials:"KP",color:"#1a7a3a",hdcp:14.2,gross:81,net:67},
-  {name:"James W.",initials:"JW",color:"#9b59b6",hdcp:12.7,gross:83,net:70},
-  {name:"Tyler B.",initials:"TB",color:"#e67e22",hdcp:18.4,gross:91,net:73},
+  // Populated once friends connect via Google sign-in
 ];
 const nearbyCourses=[
   {name:"Whistle Bear GC",crest:"🐻",dist:"4.2 km",par:72,type:"Championship"},
@@ -1379,6 +1375,53 @@ function roundHTML(r){
     </div><div class="chev">›</div>
   </div>`;
 }
+function setRoundsView(view, btn) {
+  document.querySelectorAll('#rv-list,#rv-courses').forEach(b => {
+    b.style.background = 'none';
+    b.style.color = 'var(--text-dim)';
+  });
+  btn.style.background = 'var(--green)';
+  btn.style.color = '#fff';
+
+  if (view === 'list') {
+    document.getElementById('all-rounds-list').style.display = 'block';
+    document.getElementById('courses-list-inline').style.display = 'none';
+  } else {
+    document.getElementById('all-rounds-list').style.display = 'none';
+    document.getElementById('courses-list-inline').style.display = 'block';
+    renderCourseListInline();
+  }
+}
+
+function renderCourseListInline() {
+  const el = document.getElementById('courses-list-inline');
+  const courseData = computeCourses();
+  el.innerHTML = courseData.map(c => {
+    const rs = c.rounds.filter(r => !r.tournament);
+    if (!rs.length) return '';
+    const avg = Math.round(rs.reduce((a,r)=>a+r.score,0)/rs.length);
+    const best = Math.min(...rs.map(r=>r.score));
+    const girP = Math.round(rs.reduce((a,r)=>a+r.gir,0)/(rs.length*18)*100);
+    const fwP = Math.round(rs.reduce((a,r)=>a+r.fw,0)/rs.reduce((a,r)=>a+r.fwOpp,0)*100);
+    const crest = courseCrests[c.name] || '⛳';
+    return `<div class="course-card" style="margin-bottom:10px">
+      <div class="course-card-header">
+        <div class="course-crest">${crest}</div>
+        <div style="flex:1;min-width:0">
+          <div class="course-name">${c.name}</div>
+          <div class="course-loc">${rs.length} round${rs.length>1?'s':''} · Last: ${rs[0].date}</div>
+        </div>
+      </div>
+      <div class="course-stats-grid">
+        <div class="cs"><div class="v">${avg}</div><div class="l">Avg</div></div>
+        <div class="cs"><div class="v">${best}</div><div class="l">Best</div></div>
+        <div class="cs"><div class="v">${girP}%</div><div class="l">GIR</div></div>
+        <div class="cs"><div class="v">${fwP}%</div><div class="l">FW</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function filterRounds(q){const f=rounds.filter(r=>r.course.toLowerCase().includes(q.toLowerCase())||r.date.includes(q));document.getElementById('all-rounds-list').innerHTML=f.map(roundHTML).join('')||'<div style="text-align:center;color:var(--text-dim);padding:30px;font-size:12px">No rounds found</div>';}
 
 // ── COURSES ───────────────────────────────────────────────────
@@ -1591,11 +1634,21 @@ function showBadgeToast(badge){
 renderCards();
 document.getElementById('dashboard-rounds').innerHTML=rounds.slice(0,4).map(roundHTML).join('');
 document.getElementById('all-rounds-list').innerHTML=rounds.map(roundHTML).join('');
-renderCourseList(computeCourses());
-document.getElementById('nearby-list').innerHTML=nearbyCourses.map(c=>`<div class="nearby-card"><div class="nearby-crest">${c.crest}</div><div style="flex:1"><div class="nearby-name" style="font-size:12px;font-weight:600;color:var(--text)">${c.name}</div><div class="nearby-meta" style="font-size:10px;color:var(--text-dim);margin-top:1px">${c.type} · Par ${c.par}</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:800;color:var(--green)">${c.dist}</div><div style="font-size:8px;color:var(--text-dim)">away</div></div></div>`).join('');
-document.getElementById('friend-cards').innerHTML=friends.map(f=>`<div class="friend-card"><div class="friend-avatar" style="background:${f.color}18;border:2px solid ${f.color}44;color:${f.color}">${f.initials}</div><div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--text)">${f.name}</div><div style="font-size:10px;color:var(--text-dim)">${f.location} · Last: ${f.lastRound} · ${f.lastScore}</div></div><div style="text-align:right"><div style="font-size:14px;font-weight:800;color:var(--green)">${f.hdcp}</div><div style="font-size:8px;color:var(--text-dim)">handicap</div></div></div>`).join('');
-document.getElementById('lb-gross-entries').innerHTML=lbHTML(leaderboard,'gross');
-document.getElementById('lb-net-entries').innerHTML=lbHTML(leaderboard,'net');
+// courses now rendered inline in Rounds tab
+// nearby list removed — courses now in Rounds tab
+document.getElementById('friend-cards').innerHTML = friends.length
+  ? friends.map(f=>`<div class="friend-card"><div class="friend-avatar" style="background:${f.color}18;border:2px solid ${f.color}44;color:${f.color}">${f.initials}</div><div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--text)">${f.name}</div><div style="font-size:10px;color:var(--text-dim)">${f.location} · Last: ${f.lastRound} · ${f.lastScore}</div></div><div style="text-align:right"><div style="font-size:14px;font-weight:800;color:var(--green)">${f.hdcp}</div><div style="font-size:8px;color:var(--text-dim)">handicap</div></div></div>`).join('')
+  : `<div style="text-align:center;padding:30px 20px;color:var(--text-dim)">
+      <div style="font-size:36px;margin-bottom:10px">👥</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">No friends added yet</div>
+      <div style="font-size:11px;line-height:1.6">Tap the button above to invite friends.<br>They'll appear here once they connect.</div>
+    </div>`;
+document.getElementById('lb-gross-entries').innerHTML=leaderboard.length
+  ? lbHTML(leaderboard,'gross')
+  : '<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:12px">No friends added yet — invite friends to see the leaderboard</div>';
+document.getElementById('lb-net-entries').innerHTML=leaderboard.length
+  ? lbHTML(leaderboard,'net')
+  : '<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:12px">No friends added yet — invite friends to see the leaderboard</div>';
 renderSiGrid(6.1);
 const maxD=Math.max(...clubs.map(c=>c.avg));
 document.getElementById('clubs-list').innerHTML=clubs.map(c=>`<div class="club-row"><div style="flex:1"><div class="club-name">${c.club} <span class="club-sub">${c.shots} shots</span></div><div class="bar-wrap" style="margin-top:5px"><div class="bar" style="width:${c.avg/maxD*100}%"></div></div></div><div style="text-align:right"><div style="font-size:16px;font-weight:800;color:var(--green)">${c.avg}</div><div style="font-size:8px;color:var(--text-dim)">yds avg</div></div></div>`).join('');
@@ -2005,7 +2058,7 @@ function saveRound() {
   renderCards();
   document.getElementById('dashboard-rounds').innerHTML = rounds.slice(0, 4).map(roundHTML).join('');
   document.getElementById('all-rounds-list').innerHTML = rounds.map(roundHTML).join('');
-  renderCourseList(computeCourses());
+  // courses now rendered inline in Rounds tab
   if (document.getElementById('v-trends').classList.contains('active')) setTimeout(drawCharts, 50);
 
   // Reset tournament state
