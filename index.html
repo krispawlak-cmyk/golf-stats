@@ -929,6 +929,10 @@ canvas{display:block;width:100%!important}
 </div>
 
 <script>
+// ── YEAR CONSTANTS (defined first — used throughout)
+const CY = new Date().getFullYear();
+const PY = CY - 1;
+
 // ── DATA ──────────────────────────────────────────────────────
 const rounds=[
   {id:"r1",date:"2025-09-26",course:"The Oaks of St. George",score:101,par:72,stp:29,holes:18,fw:1,fwOpp:14,gir:2,putts:37,drive:0,fairPct:8,wx:{icon:"⛅",desc:""}},
@@ -1153,7 +1157,7 @@ let currentSiFriend={name:'Matt H.',diff:6.1,color:'#2471a3'};
 // ── COMPUTED ──────────────────────────────────────────────────
 // Only use 18-hole rounds for all stats — 9-hole rounds skew everything
 const rounds18=rounds.filter(r=>r.holes===18);
-// CY and PY defined above ALL_CARDS
+
 const yr25=rounds18.filter(r=>r.date.startsWith(String(CY)));
 const yr24=rounds18.filter(r=>r.date.startsWith(String(PY)));
 const best25=yr25.length?Math.min(...yr25.map(r=>r.score)):999;
@@ -1174,9 +1178,6 @@ const bestDriveR=rounds18.find(r=>r.drive===bestDrive)||rounds18[0];
 const avgSTP=recent10.length?(recent10.reduce((a,r)=>a+r.stp,0)/recent10.length).toFixed(1):'0';
 function fmtD(d){const p=d.split('-');const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return `${m[+p[1]-1]} '${p[0].slice(2)}`;}
 
-// Ensure CY/PY available for card labels
-const CY = new Date().getFullYear();
-const PY = CY - 1;
 const ALL_CARDS=[
   {id:'best',   lbl:'Best Score',   val:bestAll,         sub:bestRound.course,    sub2:fmtD(bestRound.date),  click:'scorecard',arg:bestRound.id},
   {id:'best25', lbl:`Best '${String(CY).slice(2)}`,     val:best25,          sub:`▼ −${improved} vs '${String(PY).slice(2)}`,sub2:'most improved',    click:null},
