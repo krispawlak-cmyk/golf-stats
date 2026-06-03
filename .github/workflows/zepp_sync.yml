@@ -1,0 +1,48 @@
+name: Zepp Golf Sync
+
+on:
+  schedule:
+    - cron: "0 11 * * *"   # Daily at 7 AM Eastern (11 UTC)
+  workflow_dispatch:         # Manual trigger from Actions tab
+
+jobs:
+  sync:
+    name: Sync Zepp Golf → Google Sheets
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: zepp-golf-pip-v1
+
+      - name: Install dependencies
+        run: pip install requests gspread google-auth
+
+      - name: Run sync
+        env:
+          GOOGLE_CREDS_JSON: ${{ secrets.GOOGLE_CREDS_JSON }}
+          GOOGLE_SHEET_ID:   ${{ secrets.GOOGLE_SHEET_ID }}
+          ZEPP_EMAIL:        ${{ secrets.ZEPP_EMAIL }}
+          ZEPP_PASSWORD:     ${{ secrets.ZEPP_PASSWORD }}
+          ZEPP_GOOGLE_TOKEN: ${{ secrets.ZEPP_GOOGLE_TOKEN }}
+        run: python zepp_golf_sync.py
+
+      - name: Report result
+        if: failure()
+        run: |
+          echo "::warning::Zepp sync failed. Check Actions log for details."
+          echo "Common fixes:"
+          echo "  - Verify GOOGLE_SHEET_ID secret is correct"
+          echo "  - Confirm sheet is shared with the service account email"
+          echo "  - Check Zepp credentials if using email/password"
