@@ -31,16 +31,16 @@
 [data-weather="rain"]{--hdr-a:#1a2e3a;--hdr-b:#2c4a5e;--hdr-c:#5a7a8a}
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;background:#1a1a1a;color:var(--text);font-family:var(--font)}
-.phone-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:16px}
-.phone{width:375px;height:812px;background:var(--bg);border-radius:44px;overflow:hidden;position:relative;
-  box-shadow:0 0 0 10px #1a1a1a,0 0 0 11px #2a2a2a,0 40px 100px rgba(0,0,0,.9);
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font);margin:0;padding:0}
+.phone-wrap{display:block;min-height:100vh}
+.phone{width:100%;height:100vh;max-width:480px;margin:0 auto;background:var(--bg);border-radius:0;overflow:hidden;position:relative;
   display:flex;flex-direction:column;transition:background .4s}
-.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:28px;background:#0a0a0a;border-radius:0 0 18px 18px;z-index:999}
-.phone-screen{flex:1;overflow:hidden;display:flex;flex-direction:column;margin-top:28px}
+.phone-notch{display:none}
+.phone-screen{flex:1;overflow:hidden;display:flex;flex-direction:column;margin-top:0;
+  padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
 
 /* WEATHER HEADER */
-.weather-header{background:linear-gradient(160deg,var(--hdr-a) 0%,var(--hdr-b) 55%,var(--hdr-c) 100%);padding:12px 16px 12px;flex-shrink:0;transition:background .8s}
+.weather-header{background:linear-gradient(160deg,var(--hdr-a) 0%,var(--hdr-b) 55%,var(--hdr-c) 100%);padding:max(12px,env(safe-area-inset-top)) 16px 12px;flex-shrink:0;transition:background .8s}
 .hdr-top{display:flex;justify-content:space-between;align-items:center}
 .hdr-brand h1{font-size:17px;font-weight:800;color:#fff;letter-spacing:-.3px}
 .hdr-brand p{font-size:9px;color:var(--hdr-sub);margin-top:1px}
@@ -902,10 +902,32 @@ canvas{display:block;width:100%!important}
                 </div>
               </div>
 
-              <!-- Holes toggle -->
-              <div style="display:flex;gap:8px;margin-bottom:14px">
+              <!-- Holes + Tournament toggles -->
+              <div style="display:flex;gap:8px;margin-bottom:10px">
                 <button onclick="setLogHoles(18,this)" id="holes-btn-18" style="flex:1;padding:9px;background:var(--green);border:none;border-radius:10px;color:#fff;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer">18 Holes</button>
                 <button onclick="setLogHoles(9,this)" id="holes-btn-9" style="flex:1;padding:9px;background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer">9 Holes</button>
+              </div>
+
+              <!-- Tournament toggle -->
+              <div style="margin-bottom:14px">
+                <div onclick="toggleTournament()" id="tournament-toggle" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;cursor:pointer">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-size:16px">🏆</span>
+                    <div>
+                      <div style="font-size:12px;font-weight:600;color:var(--text)">Tournament Round</div>
+                      <div style="font-size:9px;color:var(--text-dim)">Tracked but excluded from personal bests</div>
+                    </div>
+                  </div>
+                  <div id="tournament-check" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px"></div>
+                </div>
+                <!-- Tournament type selector (hidden by default) -->
+                <div id="tournament-type-row" style="display:none;gap:6px;margin-top:6px;flex-wrap:wrap">
+                  <button onclick="setTournamentType(this,'Stroke Play')" class="t-type-btn" style="padding:5px 12px;border-radius:14px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">Stroke Play</button>
+                  <button onclick="setTournamentType(this,'Best Ball')" class="t-type-btn" style="padding:5px 12px;border-radius:14px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">Best Ball</button>
+                  <button onclick="setTournamentType(this,'Scramble')" class="t-type-btn" style="padding:5px 12px;border-radius:14px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">Scramble</button>
+                  <button onclick="setTournamentType(this,'Match Play')" class="t-type-btn" style="padding:5px 12px;border-radius:14px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">Match Play</button>
+                  <button onclick="setTournamentType(this,'Stableford')" class="t-type-btn" style="padding:5px 12px;border-radius:14px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer">Stableford</button>
+                </div>
               </div>
 
               <!-- Save button -->
@@ -944,13 +966,13 @@ const rounds=[
   {id:"r7",date:"2025-07-09",course:"The Pulpit Club",score:113,par:72,stp:41,holes:18,fw:14,fwOpp:14,gir:1,putts:36,drive:0,fairPct:100,wx:{icon:"☁️",desc:""}},
   {id:"r8",date:"2025-06-20",course:"Savannah Golf Links",score:118,par:72,stp:46,holes:18,fw:14,fwOpp:14,gir:1,putts:39,drive:0,fairPct:100,wx:{icon:"☀️",desc:""}},
   {id:"r9",date:"2025-06-14",course:"Chippewa Creek Golf Course",score:103,par:72,stp:31,holes:18,fw:14,fwOpp:14,gir:4,putts:37,drive:0,fairPct:100,wx:{icon:"⛅",desc:""}},
-  {id:"r10",date:"2025-06-05",course:"Willow Valley Golf Course",score:69,par:72,stp:-3,holes:18,fw:14,fwOpp:14,gir:17,putts:34,drive:0,fairPct:100,wx:{icon:"☀️",desc:""}},
+  {id:"r10",date:"2025-06-05",course:"Willow Valley Golf Course",score:69,par:72,stp:-3,holes:18,fw:14,fwOpp:14,gir:17,putts:34,drive:0,fairPct:100,wx:{icon:"☀️",desc:""},tournament:true,tournamentType:"Best Ball"},
   {id:"r11",date:"2025-05-30",course:"Dragons Fire Golf Club",score:111,par:72,stp:39,holes:18,fw:13,fwOpp:14,gir:0,putts:36,drive:0,fairPct:92,wx:{icon:"☀️",desc:""}},
-  {id:"r12",date:"2024-08-10",course:"Southern Pines Golf & CC",score:74,par:72,stp:2,holes:18,fw:14,fwOpp:14,gir:3,putts:21,drive:0,fairPct:100,wx:{icon:"☀️",desc:""}},
+  {id:"r12",date:"2024-08-10",course:"Southern Pines Golf & CC",score:74,par:72,stp:2,holes:18,fw:14,fwOpp:14,gir:3,putts:21,drive:0,fairPct:100,wx:{icon:"☀️",desc:""},tournament:true,tournamentType:"Best Ball"},
   {id:"r13",date:"2024-07-29",course:"Granite Links Golf Club",score:60,par:36,stp:24,holes:9,fw:7,fwOpp:7,gir:8,putts:14,drive:0,fairPct:100,wx:{icon:"☀️",desc:""}},
   {id:"r14",date:"2024-06-21",course:"Glen Abbey Golf Club",score:115,par:72,stp:43,holes:18,fw:11,fwOpp:14,gir:1,putts:38,drive:0,fairPct:79,wx:{icon:"⛅",desc:""}},
   {id:"r15",date:"2024-06-12",course:"Mitchell Golf Club",score:101,par:72,stp:29,holes:18,fw:12,fwOpp:14,gir:2,putts:39,drive:0,fairPct:83,wx:{icon:"☀️",desc:""}},
-  {id:"r16",date:"2024-06-06",course:"Grand Valley Golf & CC",score:74,par:72,stp:2,holes:18,fw:14,fwOpp:14,gir:10,putts:32,drive:0,fairPct:100,wx:{icon:"☀️",desc:""}},
+  {id:"r16",date:"2024-06-06",course:"Grand Valley Golf & CC",score:74,par:72,stp:2,holes:18,fw:14,fwOpp:14,gir:10,putts:32,drive:0,fairPct:100,wx:{icon:"☀️",desc:""},tournament:true,tournamentType:"Best Ball"},
   {id:"r17",date:"2023-10-05",course:"Copetown Woods Golf Club",score:106,par:72,stp:34,holes:18,fw:14,fwOpp:14,gir:0,putts:36,drive:0,fairPct:100,wx:{icon:"🍂",desc:""}},
   {id:"r18",date:"2023-10-01",course:"Flamborough Hills - Hills",score:49,par:36,stp:13,holes:9,fw:6,fwOpp:7,gir:0,putts:18,drive:0,fairPct:86,wx:{icon:"🍂",desc:""}},
   {id:"r19",date:"2023-10-01",course:"Flamborough Hills - Lakes",score:47,par:36,stp:11,holes:9,fw:5,fwOpp:7,gir:2,putts:18,drive:0,fairPct:71,wx:{icon:"🍂",desc:""}},
@@ -1157,14 +1179,15 @@ let currentSiFriend={name:'Matt H.',diff:6.1,color:'#2471a3'};
 // ── COMPUTED ──────────────────────────────────────────────────
 // Only use 18-hole rounds for all stats — 9-hole rounds skew everything
 const rounds18=rounds.filter(r=>r.holes===18);
+const roundsPersonal=rounds18.filter(r=>!r.tournament); // exclude tournaments from personal bests
 
 const yr25=rounds18.filter(r=>r.date.startsWith(String(CY)));
 const yr24=rounds18.filter(r=>r.date.startsWith(String(PY)));
-const best25=yr25.length?Math.min(...yr25.map(r=>r.score)):999;
-const best24=yr24.length?Math.min(...yr24.map(r=>r.score)):999;
+const best25=yr25.filter(r=>!r.tournament).length?Math.min(...yr25.filter(r=>!r.tournament).map(r=>r.score)):999;
+const best24=yr24.filter(r=>!r.tournament).length?Math.min(...yr24.filter(r=>!r.tournament).map(r=>r.score)):999;
 const improved=best24!==999&&best25!==999?best24-best25:0;
-const bestAll=rounds18.length?Math.min(...rounds18.map(r=>r.score)):0;
-const bestRound=rounds18.find(r=>r.score===bestAll)||rounds[0];
+const bestAll=roundsPersonal.length?Math.min(...roundsPersonal.map(r=>r.score)):0;
+const bestRound=roundsPersonal.find(r=>r.score===bestAll)||rounds18[0];
 const recent10=rounds18.slice(0,10);
 const avg10=recent10.length?Math.round(recent10.reduce((a,r)=>a+r.score,0)/recent10.length):0;
 const avgPutts=rounds18.length?Math.round(rounds18.reduce((a,r)=>a+r.putts,0)/rounds18.length):0;
@@ -1180,7 +1203,7 @@ function fmtD(d){const p=d.split('-');const m=['Jan','Feb','Mar','Apr','May','Ju
 
 const ALL_CARDS=[
   {id:'best',   lbl:'Best Score',   val:bestAll,         sub:bestRound.course,    sub2:fmtD(bestRound.date),  click:'scorecard',arg:bestRound.id},
-  {id:'best25', lbl:`Best '${String(CY).slice(2)}`,     val:best25,          sub:`▼ −${improved} vs '${String(PY).slice(2)}`,sub2:'most improved',    click:null},
+  {id:'best25', lbl:`Best '${String(CY).slice(2)}`,     val:best25===999?'—':best25,          sub:best25===999?'No rounds yet':improved>0?`▼ −${improved} vs '${String(PY).slice(2)}`:'—',sub2:'most improved',    click:null},
   {id:'avg10',  lbl:'Avg Score',    val:avg10,           sub:'last 10 rounds',    sub2:'',                    click:'list10'},
   {id:'hdcp',   lbl:'Handicap',     val:14.2,            sub:'simplified WHS',   sub2:'',                    click:null},
   {id:'fw',     lbl:'Fairway %',    val:fwPct+'%',       sub:`${fwH}/${fwO} hit`, sub2:'',                   click:null},
@@ -1190,7 +1213,7 @@ const ALL_CARDS=[
   {id:'longest',lbl:'Longest Drive',val:bestDrive+'y',   sub:bestDriveR.course,   sub2:fmtD(bestDriveR.date),click:'scorecard',arg:bestDriveR.id},
   {id:'stp',    lbl:'Avg +/- Par',  val:(avgSTP>0?'+':'')+avgSTP,sub:'last 10',  sub2:'',                   click:null},
   {id:'rounds', lbl:'Rounds Played',val:rounds.length,   sub:'total tracked',     sub2:'',                   click:'list10'},
-  {id:'improve',lbl:'Most Improved',val:`−${improved}`,  sub:`${best24}→${best25}`,sub2:"'24 vs '25",        click:null},
+  {id:'improve',lbl:'Most Improved',val:improved>0?`−${improved}`:'—',  sub:`${best24}→${best25}`,sub2:"'24 vs '25",        click:null},
   {id:'badges', lbl:'Badges',       val:'14/15',          sub:'achievements',      sub2:'tap to view',        click:'badges'},
 ];
 let activeIds=['best','best25','avg10','fw','gir','drive'];
@@ -1350,7 +1373,7 @@ function roundHTML(r){
       ${r.score}${nineHole?'<div style="font-size:7px;color:var(--text-dim);font-weight:600;margin-top:1px">9H</div>':''}
     </div>
     <div class="round-info">
-      <div class="round-course">${r.course}</div>
+      <div class="round-course">${r.course}${r.tournament?` <span style="font-size:8px;background:rgba(212,160,23,.15);color:var(--yellow);border:1px solid rgba(212,160,23,.3);border-radius:5px;padding:1px 5px;font-weight:700;vertical-align:middle">${r.tournamentType||'Tournament'}</span>`:''}</div>
       <div class="round-date">${r.wx.icon} ${r.date}${nineHole?' · <span style="color:var(--text-dim)">9 holes</span>':''}</div>
       <div class="round-meta"><span class="pill ${cls}">${stpStr} par</span><span class="pill">${r.fwOpp>0?Math.round(r.fw/r.fwOpp*100):0}% FW</span><span class="pill">${r.gir} GIR</span><span class="pill">${r.putts} putts</span>${r.drive>0?`<span class="pill">${r.drive}y</span>`:''}</div>
     </div><div class="chev">›</div>
@@ -1707,7 +1730,7 @@ function fetchLiveWeather() {
 
         // Update location in header
         const hdrSub = document.querySelector('.hdr-brand p');
-        if (hdrSub) hdrSub.textContent = `${city} · ${rounds18.length} rounds since 2016`;
+        if (hdrSub) hdrSub.textContent = `${city} · ${rounds.length} rounds since 2016`;
 
         // Update wind arrow direction
         const arrows = ['↑','↗','→','↘','↓','↙','←','↖'];
@@ -1732,6 +1755,8 @@ let logHoles = 18;
 let logCourseName = '';
 let logCourseDetected = false;
 let extrasOpen = false;
+let isTournament = false;
+let tournamentType = 'Stroke Play';
 
 // Nearby courses with approximate GPS coordinates (Ontario)
 const COURSE_COORDS = [
@@ -1890,6 +1915,32 @@ function toggleExtras() {
   document.getElementById('extras-chevron').textContent = extrasOpen ? '▾' : '›';
 }
 
+function toggleTournament() {
+  isTournament = !isTournament;
+  const check = document.getElementById('tournament-check');
+  const toggle = document.getElementById('tournament-toggle');
+  const typeRow = document.getElementById('tournament-type-row');
+  check.textContent = isTournament ? '✓' : '';
+  check.style.background = isTournament ? 'var(--yellow)' : 'transparent';
+  check.style.borderColor = isTournament ? 'var(--yellow)' : 'var(--border)';
+  check.style.color = '#000';
+  toggle.style.borderColor = isTournament ? 'rgba(212,160,23,.4)' : 'var(--border)';
+  toggle.style.background = isTournament ? 'rgba(212,160,23,.08)' : 'var(--bg-card2)';
+  typeRow.style.display = isTournament ? 'flex' : 'none';
+}
+
+function setTournamentType(btn, type) {
+  tournamentType = type;
+  document.querySelectorAll('.t-type-btn').forEach(b => {
+    b.style.background = 'var(--bg-card2)';
+    b.style.color = 'var(--text-dim)';
+    b.style.borderColor = 'var(--border)';
+  });
+  btn.style.background = 'rgba(212,160,23,.15)';
+  btn.style.color = 'var(--yellow)';
+  btn.style.borderColor = 'rgba(212,160,23,.4)';
+}
+
 function saveRound() {
   // Get course name
   const manualInput = document.getElementById('log-course-manual').value.trim();
@@ -1937,6 +1988,8 @@ function saveRound() {
     calories: cal,
     avgHR: hr,
     source: 'Zepp/Manual',
+    tournament: isTournament,
+    tournamentType: isTournament ? tournamentType : null,
   };
 
   rounds.unshift(newRound);
@@ -1954,6 +2007,16 @@ function saveRound() {
   document.getElementById('all-rounds-list').innerHTML = rounds.map(roundHTML).join('');
   renderCourseList(computeCourses());
   if (document.getElementById('v-trends').classList.contains('active')) setTimeout(drawCharts, 50);
+
+  // Reset tournament state
+  isTournament = false;
+  tournamentType = 'Stroke Play';
+  const check = document.getElementById('tournament-check');
+  if (check) { check.textContent = ''; check.style.background = 'transparent'; check.style.borderColor = 'var(--border)'; }
+  const toggle = document.getElementById('tournament-toggle');
+  if (toggle) { toggle.style.borderColor = 'var(--border)'; toggle.style.background = 'var(--bg-card2)'; }
+  const typeRow = document.getElementById('tournament-type-row');
+  if (typeRow) typeRow.style.display = 'none';
 
   closeModal('modal-log-round');
 
