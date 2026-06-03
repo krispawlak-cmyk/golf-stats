@@ -58,8 +58,8 @@ class ZeppClient:
         print("🔐 Authenticating with Zepp via Google token...")
         url = "https://account.huami.com/v2/client/login"
         payload = {
-            "app_name":    "com.huami.watch.hmwatchmanager",
-            "app_version": "6.7.1",
+            "app_name":    "com.huami.activity",
+            "app_version": "8.0.0",
             "country_code": "CA",
             "device_id":   "02:00:00:00:00:00",
             "device_model": "iPhone",
@@ -105,13 +105,13 @@ class ZeppClient:
         payload = {
             "email":        email,
             "password":     md5pw,
-            "app_name":     "com.huami.watch.hmwatchmanager",
-            "app_version":  "6.7.1",
+            "app_name":     "com.huami.activity",
+            "app_version":  "8.0.0",
             "country_code": "CA",
             "device_id":    "02:00:00:00:00:00",
             "device_model": "iPhone14,3",
             "grant_type":   "password",
-            "third_name":   "amazfit",
+            "third_name":   "zepp",
             "tz":           "America/Toronto",
             "lang":         "en",
         }
@@ -191,13 +191,13 @@ class ZeppClient:
                 "app_name":   "com.huami.webapp",
             }
             old_payload = {
-                "app_name":    "com.huami.watch.hmwatchmanager",
-                "app_version": "6.7.1",
+                "app_name":    "com.huami.activity",
+                "app_version": "8.0.0",
                 "country_code":"CA",
                 "device_id":   "02:00:00:00:00:00",
                 "device_model":"iPhone14,3",
                 "grant_type":  "password",
-                "third_name":  "amazfit",
+                "third_name":  "zepp",
                 "user_name":   email,
                 "password":    md5pw,
                 "tz":          "America/Toronto",
