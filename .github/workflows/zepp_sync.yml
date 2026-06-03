@@ -36,7 +36,7 @@ jobs:
           ZEPP_EMAIL:        ${{ secrets.ZEPP_EMAIL }}
           ZEPP_PASSWORD:     ${{ secrets.ZEPP_PASSWORD }}
           ZEPP_GOOGLE_TOKEN: ${{ secrets.ZEPP_GOOGLE_TOKEN }}
-        run: python zepp_golf_sync.py
+        run: python -u zepp_golf_sync.py
 
       - name: Report result
         if: failure()
