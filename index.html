@@ -1522,6 +1522,75 @@ function showInstallBanner() {
     }
   }, 12000);
 }
+
+// ── LIVE WEATHER via OpenWeatherMap ──────────────────────────────────────
+const OWM_KEY = '028b18640999f70d4d575c7e246ee7fd';
+
+function fetchLiveWeather() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(pos => {
+    const {latitude: lat, longitude: lon} = pos.coords;
+    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OWM_KEY}&units=metric`)
+      .then(r => r.json())
+      .then(data => {
+        const temp   = Math.round(data.main.temp);
+        const desc   = data.weather[0].main;        // "Clear","Clouds","Rain","Snow"
+        const wind   = Math.round(data.wind.speed * 3.6); // m/s → km/h
+        const windDeg= data.wind.deg || 0;
+        const city   = data.name;
+        const dirs   = ['N','NE','E','SE','S','SW','W','NW'];
+        const windDir= dirs[Math.round(windDeg/45)%8];
+
+        // Pick weather theme
+        const hour = new Date().getHours();
+        const isGoldenHour = (hour >= 17 && hour <= 19) || (hour >= 6 && hour <= 8);
+        let theme, icon, cond;
+
+        if (desc === 'Clear' && isGoldenHour) {
+          theme='golden'; icon='🌅'; cond='Golden hour · great scoring conditions';
+        } else if (desc === 'Clear') {
+          theme='sunny';  icon='☀️'; cond='Clear skies · perfect golf weather';
+        } else if (desc === 'Clouds') {
+          theme='cloudy'; icon='⛅'; cond='Cloudy · still playable';
+        } else if (desc === 'Rain' || desc === 'Drizzle') {
+          theme='rain';   icon='🌧️'; cond='Rain · tough conditions today';
+        } else if (desc === 'Snow') {
+          theme='rain';   icon='❄️'; cond='Snow · course likely closed';
+        } else if (desc === 'Thunderstorm') {
+          theme='rain';   icon='⛈️'; cond='Thunderstorm · stay off the course';
+        } else {
+          theme='cloudy'; icon='🌤️'; cond='Mixed conditions';
+        }
+
+        // Update header
+        document.getElementById('app').setAttribute('data-weather', theme);
+        document.getElementById('wx-icon').textContent  = icon;
+        document.getElementById('wx-temp').textContent  = temp + '°C';
+        document.getElementById('wx-desc').textContent  = `${desc} · Wind ${wind}km/h ${windDir}`;
+        document.getElementById('wx-cond').textContent  = cond;
+        document.getElementById('wind-info').textContent = `${wind}km/h ${windDir}`;
+
+        // Update location in header
+        const hdrSub = document.querySelector('.hdr-brand p');
+        if (hdrSub) hdrSub.textContent = `${city} · ${rounds.filter(r=>r.holes===18).length} rounds`;
+
+        // Update wind arrow direction
+        const arrows = ['↑','↗','→','↘','↓','↙','←','↖'];
+        const arrowEl = document.getElementById('wind-arrow');
+        if (arrowEl) arrowEl.textContent = arrows[Math.round(windDeg/45)%8];
+
+        console.log(`⛳ Weather loaded: ${temp}°C ${desc} in ${city}`);
+      })
+      .catch(err => console.log('Weather fetch failed:', err));
+  }, err => {
+    console.log('Location denied — using default weather display');
+  });
+}
+
+// Load weather on start, then refresh every 30 minutes
+fetchLiveWeather();
+setInterval(fetchLiveWeather, 30 * 60 * 1000);
+
 </script>
 </body>
 </html>
