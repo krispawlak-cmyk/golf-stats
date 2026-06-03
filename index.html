@@ -444,7 +444,7 @@ canvas{display:block;width:100%!important}
         <!-- WEATHER HEADER -->
         <div class="weather-header">
           <div class="hdr-top">
-            <div class="hdr-brand"><h1>⛳ Golf Stats</h1><p>Cambridge, ON · <span id="rounds-count-hdr">62</span> rounds since 2016</p></div>
+            <div class="hdr-brand"><h1>⛳ Golf Stats</h1><p>Cambridge, ON · 62 rounds since 2016</p></div>
             <div class="hdr-actions">
               <button class="hdr-btn" onclick="show('badges',this);document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'))">🏆<div class="badge-dot"></div></button>
               <button class="hdr-btn" onclick="openModal('modal-profile')">KP</button>
@@ -590,9 +590,9 @@ canvas{display:block;width:100%!important}
           </div>
           <!-- Progress toward next badge -->
           <div class="badge-progress-bar">
-            <div class="bpb-title"><span>Next: Sub-90 this season</span><span style="color:var(--green)">Best '25: 96</span></div>
+            <div class="bpb-title"><span>Next: Sub-90 this season</span><span style="color:var(--green)">Best '26: —</span></div>
             <div class="bpb-track"><div class="bpb-fill" style="width:40%"></div></div>
-            <div class="bpb-sub">Best 2025 so far: 96 at Knollwood · Target: break 90 this season</div>
+            <div class="bpb-sub">No rounds yet in 2026 · First round of the season unlocks badges</div>
           </div>
           <div class="sh" style="margin-top:2px">Unlocked</div>
           <div class="badge-grid" id="badges-unlocked"></div>
@@ -783,7 +783,7 @@ canvas{display:block;width:100%!important}
             <div class="modal-body">
               <div class="profile-header-strip">
                 <div class="profile-avatar-lg">KP</div>
-                <div><div style="font-size:15px;font-weight:800;color:#fff">Kris P.</div><div style="font-size:10px;color:rgba(255,255,255,.75);margin-top:2px">Cambridge, ON · Handicap 14.2</div><div style="font-size:9px;color:rgba(255,255,255,.55);margin-top:3px">✓ Google · Balance 2 connected · 2025 season</div></div>
+                <div><div style="font-size:15px;font-weight:800;color:#fff">Kris P.</div><div style="font-size:10px;color:rgba(255,255,255,.75);margin-top:2px">Cambridge, ON · Handicap 14.2</div><div style="font-size:9px;color:rgba(255,255,255,.55);margin-top:3px">✓ Google · Balance 2 connected · 2026 season</div></div>
               </div>
               <div class="p-stats-grid">
                 <div class="p-stat"><div class="v">14</div><div class="l">Rounds '25</div></div>
@@ -1103,20 +1103,20 @@ const bagClubs=[
 const BADGES=[
   // ── 2025 SEASON FRESH START ─────────────────────────────────────────────
   // Badges unlock automatically as you play this season
-  {id:'first_round_25', icon:'🏌️',name:"First Tee '25",   desc:"Log your first round of the 2025 season",         unlocked:false, target:"1 round in 2025"},
-  {id:'five_rounds_25', icon:'📋',name:"5 Rounds '25",    desc:"Log 5 rounds this season",                        unlocked:false, target:"5 rounds in 2025"},
-  {id:'ten_rounds_25',  icon:'🔟',name:"10 Rounds '25",   desc:"Hit 10 rounds this season",                       unlocked:false, target:"10 rounds in 2025"},
-  {id:'broke_100_25',   icon:'💯',name:"Sub-100 '25",     desc:"Shoot 99 or better this season",                  unlocked:false, target:"score ≤99 in 2025"},
-  {id:'broke_95_25',    icon:'9️⃣',name:"Sub-95 '25",     desc:"Shoot 94 or better this season",                  unlocked:false, target:"score ≤94 in 2025"},
-  {id:'broke_90_25',    icon:'🔥',name:"Sub-90 '25",      desc:"Shoot 89 or better this season",                  unlocked:false, target:"score ≤89 in 2025"},
-  {id:'broke_85_25',    icon:'⭐',name:"Sub-85 '25",      desc:"Shoot 84 or better this season",                  unlocked:false, target:"score ≤84 in 2025"},
-  {id:'gir_25',         icon:'🟢',name:"GIR Machine '25", desc:"Hit 30%+ GIR in a round this season",             unlocked:false, target:"GIR% ≥30 in one round"},
-  {id:'fairways_25',    icon:'🚀',name:"Fairway Finder '25",desc:"Hit 60%+ fairways in a round this season",      unlocked:false, target:"FW% ≥60 in one round"},
-  {id:'putts_25',       icon:'🎯',name:"Putting Touch '25",desc:"32 putts or fewer in a round this season",       unlocked:false, target:"putts ≤32 in one round"},
-  {id:'best_score_25',  icon:'🏆',name:"Season Best '25", desc:"Beat your previous best score of 96 this season", unlocked:false, target:"score <96 in 2025"},
-  {id:'hdcp_drop_25',   icon:'📉',name:"Dropping '25",    desc:"Lower your handicap by 2+ points this season",    unlocked:false, target:"handicap drop ≥2"},
-  {id:'new_course_25',  icon:'🗺️',name:"Explorer '25",   desc:"Play a course you have never played before",        unlocked:false, target:"new course in 2025"},
-  {id:'comeback_25',    icon:'💪',name:"Comeback Kid '25",desc:"Score 10+ strokes better than previous round",    unlocked:false, target:"10+ improvement round-to-round"},
+  {id:'first_round_25', icon:'🏌️',name:`First Tee '${String(CY).slice(2)}`,   desc:"Log your first round of the 2025 season",         unlocked:false, target:"1 round in 2025"},
+  {id:'five_rounds_25', icon:'📋',name:`5 Rounds '${String(CY).slice(2)}`,    desc:"Log 5 rounds this season",                        unlocked:false, target:"5 rounds in 2025"},
+  {id:'ten_rounds_25',  icon:'🔟',name:`10 Rounds '${String(CY).slice(2)}`,   desc:"Hit 10 rounds this season",                       unlocked:false, target:"10 rounds in 2025"},
+  {id:'broke_100_25',   icon:'💯',name:`Sub-100 '${String(CY).slice(2)}`,     desc:"Shoot 99 or better this season",                  unlocked:false, target:"score ≤99 in 2025"},
+  {id:'broke_95_25',    icon:'9️⃣',name:`Sub-95 '${String(CY).slice(2)}`,     desc:"Shoot 94 or better this season",                  unlocked:false, target:"score ≤94 in 2025"},
+  {id:'broke_90_25',    icon:'🔥',name:`Sub-90 '${String(CY).slice(2)}`,      desc:"Shoot 89 or better this season",                  unlocked:false, target:"score ≤89 in 2025"},
+  {id:'broke_85_25',    icon:'⭐',name:`Sub-85 '${String(CY).slice(2)}`,      desc:"Shoot 84 or better this season",                  unlocked:false, target:"score ≤84 in 2025"},
+  {id:'gir_25',         icon:'🟢',name:`GIR Machine '${String(CY).slice(2)}`, desc:"Hit 30%+ GIR in a round this season",             unlocked:false, target:"GIR% ≥30 in one round"},
+  {id:'fairways_25',    icon:'🚀',name:`Fairway Finder '${String(CY).slice(2)}`,desc:"Hit 60%+ fairways in a round this season",      unlocked:false, target:"FW% ≥60 in one round"},
+  {id:'putts_25',       icon:'🎯',name:`Putting Touch '${String(CY).slice(2)}`,desc:"32 putts or fewer in a round this season",       unlocked:false, target:"putts ≤32 in one round"},
+  {id:'best_score_25',  icon:'🏆',name:`Season Best '${String(CY).slice(2)}`, desc:"Beat your previous best score of 96 this season", unlocked:false, target:"score <96 in 2025"},
+  {id:'hdcp_drop_25',   icon:'📉',name:`Dropping '${String(CY).slice(2)}`,    desc:"Lower your handicap by 2+ points this season",    unlocked:false, target:"handicap drop ≥2"},
+  {id:'new_course_25',  icon:'🗺️',name:`Explorer '${String(CY).slice(2)}`,   desc:"Play a course you have never played before",        unlocked:false, target:"new course in 2025"},
+  {id:'comeback_25',    icon:'💪',name:`Comeback Kid '${String(CY).slice(2)}`,desc:"Score 10+ strokes better than previous round",    unlocked:false, target:"10+ improvement round-to-round"},
   {id:'single_hdcp',    icon:'💎',name:'Single Digits',    desc:"Reach a handicap index below 10",                 unlocked:false, target:"handicap <10"},
 ];
 
@@ -1151,29 +1151,35 @@ let simulatedDist=163,darkMode=false,expandedHole=null,drawerOpen=false;
 let currentSiFriend={name:'Matt H.',diff:6.1,color:'#2471a3'};
 
 // ── COMPUTED ──────────────────────────────────────────────────
-const yr25=rounds.filter(r=>r.date.startsWith('2025'));
-const yr24=rounds.filter(r=>r.date.startsWith('2024'));
-const best25=Math.min(...yr25.map(r=>r.score));
-const best24=Math.min(...yr24.map(r=>r.score));
-const improved=best24-best25;
-const bestAll=Math.min(...rounds.map(r=>r.score));
-const bestRound=rounds.find(r=>r.score===bestAll);
-const recent10=rounds.slice(0,10);
-const avg10=Math.round(recent10.reduce((a,r)=>a+r.score,0)/recent10.length);
-const avgPutts=Math.round(rounds.reduce((a,r)=>a+r.putts,0)/rounds.length);
-const fwH=rounds.reduce((a,r)=>a+r.fw,0),fwO=rounds.reduce((a,r)=>a+r.fwOpp,0);
-const fwPct=Math.round(fwH/fwO*100);
-const girT=rounds.reduce((a,r)=>a+r.gir,0);
-const girPct=Math.round(girT/(rounds.length*18)*100);
-const avgDrive=Math.round(rounds.reduce((a,r)=>a+r.drive,0)/rounds.length);
-const bestDrive=Math.max(...rounds.map(r=>r.drive));
-const bestDriveR=rounds.find(r=>r.drive===bestDrive);
-const avgSTP=(recent10.reduce((a,r)=>a+r.stp,0)/recent10.length).toFixed(1);
+// Only use 18-hole rounds for all stats — 9-hole rounds skew everything
+const rounds18=rounds.filter(r=>r.holes===18);
+// CY and PY defined above ALL_CARDS
+const yr25=rounds18.filter(r=>r.date.startsWith(String(CY)));
+const yr24=rounds18.filter(r=>r.date.startsWith(String(PY)));
+const best25=yr25.length?Math.min(...yr25.map(r=>r.score)):999;
+const best24=yr24.length?Math.min(...yr24.map(r=>r.score)):999;
+const improved=best24!==999&&best25!==999?best24-best25:0;
+const bestAll=rounds18.length?Math.min(...rounds18.map(r=>r.score)):0;
+const bestRound=rounds18.find(r=>r.score===bestAll)||rounds[0];
+const recent10=rounds18.slice(0,10);
+const avg10=recent10.length?Math.round(recent10.reduce((a,r)=>a+r.score,0)/recent10.length):0;
+const avgPutts=rounds18.length?Math.round(rounds18.reduce((a,r)=>a+r.putts,0)/rounds18.length):0;
+const fwH=rounds18.reduce((a,r)=>a+r.fw,0),fwO=rounds18.reduce((a,r)=>a+r.fwOpp,0);
+const fwPct=fwO>0?Math.round(fwH/fwO*100):0;
+const girT=rounds18.reduce((a,r)=>a+r.gir,0);
+const girPct=rounds18.length?Math.round(girT/(rounds18.length*18)*100):0;
+const avgDrive=Math.round(rounds18.reduce((a,r)=>a+r.drive,0)/rounds18.length)||0;
+const bestDrive=rounds18.length?Math.max(...rounds18.map(r=>r.drive)):0;
+const bestDriveR=rounds18.find(r=>r.drive===bestDrive)||rounds18[0];
+const avgSTP=recent10.length?(recent10.reduce((a,r)=>a+r.stp,0)/recent10.length).toFixed(1):'0';
 function fmtD(d){const p=d.split('-');const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return `${m[+p[1]-1]} '${p[0].slice(2)}`;}
 
+// Ensure CY/PY available for card labels
+const CY = new Date().getFullYear();
+const PY = CY - 1;
 const ALL_CARDS=[
   {id:'best',   lbl:'Best Score',   val:bestAll,         sub:bestRound.course,    sub2:fmtD(bestRound.date),  click:'scorecard',arg:bestRound.id},
-  {id:'best25', lbl:"Best '25",     val:best25,          sub:`▼ −${improved} vs '24`,sub2:'most improved',    click:null},
+  {id:'best25', lbl:`Best '${String(CY).slice(2)}`,     val:best25,          sub:`▼ −${improved} vs '${String(PY).slice(2)}`,sub2:'most improved',    click:null},
   {id:'avg10',  lbl:'Avg Score',    val:avg10,           sub:'last 10 rounds',    sub2:'',                    click:'list10'},
   {id:'hdcp',   lbl:'Handicap',     val:14.2,            sub:'simplified WHS',   sub2:'',                    click:null},
   {id:'fw',     lbl:'Fairway %',    val:fwPct+'%',       sub:`${fwH}/${fwO} hit`, sub2:'',                   click:null},
@@ -1337,12 +1343,15 @@ function addCard(id){if(activeIds.length>=6){alert('Max 6 cards');return;}active
 // ── ROUNDS ────────────────────────────────────────────────────
 function roundHTML(r){
   const stpStr=(r.stp>0?'+':'')+r.stp;const cls=r.stp<0?'neg':r.stp>0?'pos':'ev';
+  const nineHole = r.holes===9;
   return`<div class="round-card" onclick="openScorecard('${r.id}')">
-    <div class="round-score">${r.score}</div>
+    <div class="round-score" style="${nineHole?'font-size:14px;':''}">
+      ${r.score}${nineHole?'<div style="font-size:7px;color:var(--text-dim);font-weight:600;margin-top:1px">9H</div>':''}
+    </div>
     <div class="round-info">
       <div class="round-course">${r.course}</div>
-      <div class="round-date">${r.wx.icon} ${r.date}</div>
-      <div class="round-meta"><span class="pill ${cls}">${stpStr} par</span><span class="pill">${Math.round(r.fw/r.fwOpp*100)}% FW</span><span class="pill">${r.gir} GIR</span><span class="pill">${r.putts} putts</span><span class="pill">${r.drive}y</span></div>
+      <div class="round-date">${r.wx.icon} ${r.date}${nineHole?' · <span style="color:var(--text-dim)">9 holes</span>':''}</div>
+      <div class="round-meta"><span class="pill ${cls}">${stpStr} par</span><span class="pill">${r.fwOpp>0?Math.round(r.fw/r.fwOpp*100):0}% FW</span><span class="pill">${r.gir} GIR</span><span class="pill">${r.putts} putts</span>${r.drive>0?`<span class="pill">${r.drive}y</span>`:''}</div>
     </div><div class="chev">›</div>
   </div>`;
 }
@@ -1697,7 +1706,7 @@ function fetchLiveWeather() {
 
         // Update location in header
         const hdrSub = document.querySelector('.hdr-brand p');
-        if (hdrSub) hdrSub.textContent = `${city} · ${rounds.filter(r=>r.holes===18).length} rounds`;
+        if (hdrSub) hdrSub.textContent = `${city} · ${rounds18.length} rounds since 2016`;
 
         // Update wind arrow direction
         const arrows = ['↑','↗','→','↘','↓','↙','←','↖'];
