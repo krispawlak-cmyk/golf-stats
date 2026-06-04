@@ -56,10 +56,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
 
 /* NAV */
-.nav{display:flex;overflow-x:auto;scrollbar-width:none;padding:0 4px;background:var(--bg-card);border-bottom:1px solid var(--border);flex-shrink:0;box-shadow:0 1px 4px var(--shadow)}
+.nav{display:flex;overflow-x:auto;scrollbar-width:none;padding:0 6px;background:var(--bg-card);border-bottom:1px solid var(--border);flex-shrink:0;box-shadow:0 1px 6px var(--shadow)}
 .nav::-webkit-scrollbar{display:none}
-.nav-btn{flex-shrink:0;padding:8px 10px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-dim);font-size:10px;font-weight:600;font-family:var(--font);cursor:pointer;white-space:nowrap;transition:all .2s}
-.nav-btn.active{color:var(--green);border-bottom-color:var(--green)}
+.nav-btn{flex-shrink:0;padding:13px 14px;background:none;border:none;border-bottom:3px solid transparent;color:var(--text-dim);font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer;white-space:nowrap;transition:all .2s;letter-spacing:-.1px}
+.nav-btn.active{color:var(--green);border-bottom-color:var(--green);font-weight:700}
 
 
 /* VIEWS */
@@ -505,14 +505,60 @@ canvas{display:block;width:100%!important}
 
         <!-- TRENDS -->
         <div id="v-trends" class="view">
-          <div class="chart-wrap"><div class="chart-title">Score Over Time</div><canvas id="c-score" height="90"></canvas></div>
-          <div class="chart-wrap"><div class="chart-title">+/- Par Per Round</div><canvas id="c-stp" height="80"></canvas></div>
-          <div class="chart-wrap"><div class="chart-title">Strokes Gained: Driving</div><canvas id="c-sgd" height="75"></canvas></div>
-          <div class="chart-wrap"><div class="chart-title">Avg Driving Distance</div><canvas id="c-drive" height="80"></canvas></div>
-          <div class="chart-wrap"><div class="chart-title">GIR %</div><canvas id="c-gir" height="75"></canvas></div>
-          <div class="chart-wrap"><div class="chart-title">Putts Per Round</div><canvas id="c-putts" height="75"></canvas></div>
-          <div class="chart-wrap"><div class="chart-title">Handicap Trend</div><canvas id="c-hdcp" height="80"></canvas></div>
-          <div class="chart-wrap"><div class="chart-title">Par 3 / 4 / 5 Avg</div><canvas id="c-pars" height="85"></canvas></div>
+
+          <!-- Year filter -->
+          <div style="display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px">
+            <button onclick="setTrendYear('all',this)" id="ty-all" class="ty-btn active-ty" style="flex-shrink:0;padding:7px 16px;border-radius:20px;border:none;background:var(--green);color:#fff;font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer">All Time</button>
+            <button onclick="setTrendYear('2026',this)" id="ty-2026" class="ty-btn" style="flex-shrink:0;padding:7px 16px;border-radius:20px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-dim);font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer">2026</button>
+            <button onclick="setTrendYear('2025',this)" id="ty-2025" class="ty-btn" style="flex-shrink:0;padding:7px 16px;border-radius:20px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-dim);font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer">2025</button>
+            <button onclick="setTrendYear('2024',this)" id="ty-2024" class="ty-btn" style="flex-shrink:0;padding:7px 16px;border-radius:20px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-dim);font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer">2024</button>
+            <button onclick="setTrendYear('2023',this)" id="ty-2023" class="ty-btn" style="flex-shrink:0;padding:7px 16px;border-radius:20px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-dim);font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer">2023</button>
+            <button onclick="setTrendYear('2022',this)" id="ty-2022" class="ty-btn" style="flex-shrink:0;padding:7px 16px;border-radius:20px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-dim);font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer">2022</button>
+          </div>
+
+          <!-- Summary strip -->
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 6px;text-align:center;box-shadow:0 1px 4px var(--shadow)">
+              <div style="font-size:18px;font-weight:900;color:var(--green)" id="trend-best">—</div>
+              <div style="font-size:8px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px">Best</div>
+            </div>
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 6px;text-align:center;box-shadow:0 1px 4px var(--shadow)">
+              <div style="font-size:18px;font-weight:900;color:var(--green)" id="trend-avg">—</div>
+              <div style="font-size:8px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px">Avg</div>
+            </div>
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 6px;text-align:center;box-shadow:0 1px 4px var(--shadow)">
+              <div style="font-size:18px;font-weight:900;color:var(--green)" id="trend-putts">—</div>
+              <div style="font-size:8px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px">Avg Putts</div>
+            </div>
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 6px;text-align:center;box-shadow:0 1px 4px var(--shadow)">
+              <div style="font-size:18px;font-weight:900;color:var(--green)" id="trend-rounds">—</div>
+              <div style="font-size:8px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px">Rounds</div>
+            </div>
+          </div>
+
+          <div class="chart-wrap">
+            <div class="chart-title">📈 Score Over Time</div>
+            <div style="font-size:9px;color:var(--text-dim);margin-bottom:6px" id="trend-score-sub">18-hole personal rounds only</div>
+            <canvas id="c-score" height="110"></canvas>
+          </div>
+
+          <div class="chart-wrap">
+            <div class="chart-title">📊 Score vs Par (+/-)</div>
+            <div style="font-size:9px;color:var(--text-dim);margin-bottom:6px">Green = under par · Red = over par</div>
+            <canvas id="c-stp" height="90"></canvas>
+          </div>
+
+          <div class="chart-wrap">
+            <div class="chart-title">🏒 Putts Per Round</div>
+            <div style="font-size:9px;color:var(--text-dim);margin-bottom:6px">Target: under 33 · Tour avg: 29</div>
+            <canvas id="c-putts" height="100"></canvas>
+          </div>
+
+          <div class="chart-wrap">
+            <div class="chart-title">📉 Handicap Trend</div>
+            <div style="font-size:9px;color:var(--text-dim);margin-bottom:6px">Lower is better · Goal: single digits</div>
+            <canvas id="c-hdcp" height="100"></canvas>
+          </div>
         </div>
 
         <!-- FRIENDS -->
@@ -1304,7 +1350,7 @@ const COURSE_COORDS = [
   {name:"Lowville Heights GC",   lat:43.4020, lng:-79.9230},
   {name:"Century Pines GC",      lat:43.2340, lng:-79.8120},
   {name:"Savannah Golf Links",   lat:43.1780, lng:-80.1340},
-  {name:"Willow Valley Golf Course", lat:43.2340, lng:-79.8890},
+  {name:"Willow Valley Golf Course", lat:43.1641, lng:-79.9048},
   {name:"Dragons Fire GC",       lat:43.9560, lng:-79.4230},
   {name:"North Granite Ridge GC",lat:44.2340, lng:-79.8760},
   {name:"Chippewa Creek GC",     lat:42.8450, lng:-79.2340},
@@ -1904,14 +1950,69 @@ function drawMulti(id, labels, datasets, colors) {
   labels.forEach((l, i) => { if (i % step === 0) c.fillText(l.slice(5), xi(i), H - 1); });
 }
 
+let currentTrendYear = 'all';
+
+function setTrendYear(year, btn) {
+  currentTrendYear = year;
+  // Update button styles
+  document.querySelectorAll('.ty-btn').forEach(b => {
+    b.style.background = 'var(--bg-card)';
+    b.style.color = 'var(--text-dim)';
+    b.style.border = '1px solid var(--border)';
+    b.style.fontWeight = '600';
+  });
+  btn.style.background = 'var(--green)';
+  btn.style.color = '#fff';
+  btn.style.border = 'none';
+  btn.style.fontWeight = '700';
+  drawCharts();
+}
+
+function getFilteredRounds() {
+  if (currentTrendYear === 'all') return roundsPersonal;
+  return roundsPersonal.filter(r => r.date.startsWith(currentTrendYear));
+}
+
 function drawCharts() {
-  drawLine('c-score', revD18, cd.score, gc('g'));
-  drawBar('c-stp', revD18, cd.stp);
-  drawLine('c-drive', revD18, cd.drive, gc('b'));
-  drawLine('c-gir', revD18, cd.gir, gc('b'), true, '%');
-  drawLine('c-putts', revD18, cd.putts, gc('p'));
-  drawLine('c-hdcp', cd.hdcpD, cd.hdcp, gc('y'));
-  drawMulti('c-pars', revD18, [cd.par3, cd.par4, cd.par5], [gc('g'), gc('b'), gc('o')]);
+  const filtered = getFilteredRounds();
+  const sorted = [...filtered].reverse(); // oldest first for charts
+
+  const dates  = sorted.map(r => r.date);
+  const scores = sorted.map(r => r.score);
+  const stps   = sorted.map(r => r.stp);
+  const putts  = sorted.map(r => r.putts);
+
+  // Handicap — always show full history for context
+  const hdcpDates  = currentTrendYear === 'all'
+    ? cd.hdcpD
+    : cd.hdcpD.filter(d => d.startsWith(currentTrendYear));
+  const hdcpValues = currentTrendYear === 'all'
+    ? cd.hdcp
+    : cd.hdcpD.map((d, i) => d.startsWith(currentTrendYear) ? cd.hdcp[i] : null).filter(v => v !== null);
+
+  drawLine('c-score', dates, scores, gc('g'));
+  drawBar('c-stp', dates, stps);
+  drawLine('c-putts', dates, putts, gc('p'));
+  drawLine('c-hdcp', hdcpDates.length ? hdcpDates : cd.hdcpD, hdcpValues.length ? hdcpValues : cd.hdcp, gc('y'));
+
+  // Update summary strip
+  const best   = filtered.length ? Math.min(...filtered.map(r => r.score)) : null;
+  const avg    = filtered.length ? Math.round(filtered.reduce((a,r)=>a+r.score,0)/filtered.length) : null;
+  const avgP   = filtered.length ? Math.round(filtered.reduce((a,r)=>a+r.putts,0)/filtered.length) : null;
+
+  const tBest   = document.getElementById('trend-best');
+  const tAvg    = document.getElementById('trend-avg');
+  const tPutts  = document.getElementById('trend-putts');
+  const tRounds = document.getElementById('trend-rounds');
+  const tSub    = document.getElementById('trend-score-sub');
+
+  if (tBest)   tBest.textContent   = best || '—';
+  if (tAvg)    tAvg.textContent    = avg || '—';
+  if (tPutts)  tPutts.textContent  = avgP || '—';
+  if (tRounds) tRounds.textContent = filtered.length;
+  if (tSub)    tSub.textContent    = filtered.length
+    ? `${filtered.length} rounds · ${currentTrendYear === 'all' ? 'All time' : currentTrendYear}`
+    : `No rounds in ${currentTrendYear}`;
 }
 
 
